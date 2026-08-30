@@ -47,10 +47,10 @@ L'URL de l'API est définie dans `src/api/client.js` (`http://localhost:8080/api
 |------|-------|--------|
 | Accueil | `/` | Fait |
 | Liste + upload cours | `/courses` | Fait (Ladina) |
-| Détail cours / chapitres | `/courses/:id` | À finir (`CourseDetailPage` vide) |
-| Génération IA | `/generation` | Placeholder |
-| Édition questions | `/questions` | Placeholder |
-| Export | `/export` | Placeholder |
+| Détail cours / chapitres | `/courses/:id` | Fait (Ladina) + bouton génération |
+| Génération IA | `/generation` | Fait (Herihasina) |
+| Édition questions | `/questions` | Placeholder (Tsiory) |
+| Export | `/export` | Placeholder (Tsiory) |
 
 ## Git
 
@@ -73,7 +73,7 @@ Conventions de commit : `feat:`, `fix:`, `chore:`.
 
 ```
 src/
-├── api/            # client axios + appels par domaine
+├── api/            # client axios + appels par domaine (courses, chapters, exams)
 ├── components/     # briques UI réutilisables
 ├── context/
 ├── layouts/

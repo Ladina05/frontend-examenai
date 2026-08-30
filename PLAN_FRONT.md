@@ -58,13 +58,15 @@ Les endpoints questions (`/api/questions`) et export (`/api/export`) ne suivent 
 | Liste des chapitres | `GET /api/chapters/course/{courseId}` |
 | Contenu d'un chapitre | `GET /api/chapters/{id}` |
 
-**Tâches :**
+**Statut :** Fait (détail cours + chapitres + bouton vers génération).
 
-- [ ] Afficher titre, type de fichier, description
-- [ ] Liste des chapitres (titre, numéro)
-- [ ] Clic chapitre → afficher `content`
-- [ ] Bouton « Générer un examen » → `/generation?chapterId=...&courseId=...`
-- [ ] Message si `content` vide
+**Reste :**
+
+- [x] Afficher titre, type de fichier, description
+- [x] Liste des chapitres (titre, numéro)
+- [x] Clic chapitre → afficher `content`
+- [x] Bouton « Générer un examen » → `/generation?chapterId=...&courseId=...`
+- [ ] Message dédié si `content` vide
 
 **Branche :** `feat/courses-chapters`
 
@@ -100,12 +102,12 @@ Difficulté : `EASY`, `MEDIUM`, `HARD`.
 
 **Tâches :**
 
-- [ ] `src/api/exams.js` : `generateExam`, `fetchExamById`, `fetchExamsByChapter`
-- [ ] Formulaire : titre, description, nb questions, durée, difficulté, types (checkboxes)
-- [ ] Loader pendant l'appel (souvent 20–40 s)
-- [ ] Afficher les questions : `statement`, `questionType`, `options`, `correctAnswer`
-- [ ] Gérer les erreurs (chapitre vide, Gemini, 500)
-- [ ] Boutons vers édition (`/questions?examId=`) et export (`/export?examId=`)
+- [x] `src/api/exams.js` : `generateExam`, `fetchExamById`, `fetchExamsByChapter`
+- [x] Formulaire : titre, description, nb questions, durée, difficulté, types (checkboxes)
+- [x] Loader pendant l'appel (souvent 20–40 s)
+- [x] Afficher les questions : `statement`, `questionType`, `options`, `correctAnswer`
+- [x] Gérer les erreurs (chapitre vide, Gemini, 500)
+- [x] Boutons vers édition (`/questions?examId=`) et export (`/export?examId=`)
 
 **Branche :** `feat/generate-exam-page`
 
@@ -183,7 +185,7 @@ src/api/
 ├── client.js      Fait
 ├── courses.js     Fait
 ├── chapters.js    Fait
-├── exams.js       À faire (Herihasina)
+├── exams.js       Fait (Herihasina)
 ├── questions.js   À faire (Tsiory)
 └── export.js      À faire (Tsiory)
 ```
@@ -225,8 +227,8 @@ main
 
 ## Checklist
 
-- [ ] Page 2 détail chapitres
-- [ ] Page 3 génération IA
+- [x] Page 2 détail chapitres
+- [x] Page 3 génération IA
 - [ ] Page 4 CRUD questions
 - [ ] Page 5 export PDF/Word
 - [ ] Navigation chapitre → génération → édition → export
