@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, BookOpen, ListTree } from 'lucide-react'
+import { ArrowLeft, BookOpen, ListTree, Sparkles } from 'lucide-react'
 import { fetchCourseById } from '../api/courses'
 import { fetchChaptersByCourse, fetchChapterById } from '../api/chapters'
 import FileTypeBadge from '../components/FileTypeBadge'
@@ -115,6 +115,15 @@ export default function CourseDetailPage() {
               </p>
             )}
           </div>
+          {selectedChapterId && (
+            <Link
+              to={`/generation?courseId=${course.id}&chapterId=${selectedChapterId}`}
+              className="btn-primary shrink-0"
+            >
+              <Sparkles size={16} />
+              Générer un examen
+            </Link>
+          )}
         </div>
       </header>
 
