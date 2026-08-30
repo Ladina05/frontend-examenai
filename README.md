@@ -1,36 +1,85 @@
 # ExamGenAI — Frontend
 
-Interface React (Vite + Tailwind) pour le générateur d'examens par chapitre.
+Interface React (Vite + Tailwind) du générateur d'examens par chapitre.
+
+Backend : http://localhost:8080
+Frontend : http://localhost:5173
+
+- Backend : https://github.com/Herihasina21/backend-examgenai
+- Frontend : https://github.com/Ladina05/frontend-examenai
+
+Projet GLA — Master 1, 2026.
+
+Le détail des pages et des tâches est dans [PLAN_FRONT.md](./PLAN_FRONT.md).
+
+## Équipe
+
+| Membre | Frontend | Branche suggérée |
+|--------|----------|------------------|
+| Ladina | Pages Upload, Cours, Chapitres | `feat/courses-chapters` |
+| Herihasina | Page Génération IA | `feat/generate-exam-page` |
+| Tsiory | Pages Édition questions + Export | `feat/questions-export` |
+
+## Pipeline
+
+```
+Upload → Chapitres → Génération IA → Édition → Export
+```
 
 ## Lancer le projet
 
+Prérequis : Node 18+, backend Spring Boot démarré sur le port 8080.
+
 ```bash
+git clone git@github.com:Ladina05/frontend-examenai.git
+cd frontend-examenai
 npm install
 npm run dev
 ```
 
-L'application démarre sur `http://localhost:5173` et attend le backend Spring Boot sur
-`http://localhost:8080/api` (voir `src/api/client.js` pour changer l'URL).
+L'application démarre sur http://localhost:5173.
 
-## État d'avancement
+L'URL de l'API est définie dans `src/api/client.js` (`http://localhost:8080/api`).
 
-Seules les **Pages 1 et 2** du plan sont implémentées pour l'instant :
+## État actuel
 
-- **Page 1 — `/courses`** : upload d'un cours (fichier + titre + description),
-  liste des cours, suppression.
-- **Page 2 — `/courses/:id`** : détail d'un cours, table des matières des chapitres,
-  visionneuse de contenu d'un chapitre.
+| Page | Route | Statut |
+|------|-------|--------|
+| Accueil | `/` | Fait |
+| Liste + upload cours | `/courses` | Fait (Ladina) |
+| Détail cours / chapitres | `/courses/:id` | À finir (`CourseDetailPage` vide) |
+| Génération IA | `/generation` | Placeholder |
+| Édition questions | `/questions` | Placeholder |
+| Export | `/export` | Placeholder |
 
-Les pages 3 (génération IA), 4 (édition des questions) et 5 (export) ne sont pas
-encore développées — elles apparaissent en grisé dans la barre latérale, marquées
-« bientôt ».
+## Git
+
+Ne pas pusher directement sur `main`.
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b feat/nom-de-la-page
+git add .
+git commit -m "feat: description courte"
+git push -u origin feat/nom-de-la-page
+```
+
+Puis Pull Request vers `main`.
+
+Conventions de commit : `feat:`, `fix:`, `chore:`.
 
 ## Structure
 
 ```
 src/
-├── api/            # client axios + appels par domaine (courses, chapters)
+├── api/            # client axios + appels par domaine
 ├── components/     # briques UI réutilisables
-├── layouts/         # ossature de page (sidebar + zone de contenu)
-└── pages/          # CoursesPage, CourseDetailPage
+├── context/
+├── layouts/
+└── pages/
 ```
+
+## Licence
+
+Projet académique — Master 1 GLA 2026.
