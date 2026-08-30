@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-paper-50 text-ink-900 font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-pen-tint text-pen-dark;
+  }
+  *:focus-visible {
+    outline: 2px solid #C23B34;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Fiche bristol : bordure en tirets façon carte perforée */
+  .index-card {
+    @apply relative rounded-2xl border border-dashed border-ink-900/15 bg-white shadow-card transition-all duration-200;
+  }
+  .index-card:hover {
+    @apply shadow-pop -translate-y-0.5 border-pen/40;
+  }
+
+  /* Ligne de cahier pour les listes façon table des matières */
+  .toc-row {
+    @apply flex items-baseline gap-2 overflow-hidden;
+  }
+  .toc-dots {
+    @apply flex-1 border-b border-dotted border-ink-900/25 translate-y-[-4px];
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-pen px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-pen-dark active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-ink-400 disabled:active:scale-100;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-900/15 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 transition-all duration-150 hover:border-ink-900/30 hover:bg-paper-100 active:scale-[0.97];
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide;
+  }
+}
