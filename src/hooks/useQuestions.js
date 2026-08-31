@@ -5,21 +5,25 @@ import {
   fetchQuestionsByExam,
   updateQuestion,
 } from '../api/questions'
+import { useToast } from '../context/ToastContext'
+import { MESSAGES } from '../constants/messages'
 
 export default function useQuestions(examId) {
-  const [questions, setQuestions] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  var toast = useToast()
 
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingQuestion, setEditingQuestion] = useState(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState(null)
+  var [questions, setQuestions] = useState([])
+  var [isLoading, setIsLoading] = useState(false)
+  var [error, setError] = useState(null)
 
-  const [deleteTarget, setDeleteTarget] = useState(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  var [dialogOpen, setDialogOpen] = useState(false)
+  var [editingQuestion, setEditingQuestion] = useState(null)
+  var [isSubmitting, setIsSubmitting] = useState(false)
+  var [submitError, setSubmitError] = useState(null)
 
-  const loadQuestions = useCallback(async () => {
+  var [deleteTarget, setDeleteTarget] = useState(null)
+  var [isDeleting, setIsDeleting] = useState(false)
+
+  var loadQuestions = useCallback(async function () {
     if (!examId) {
       setQuestions([])
       return
@@ -28,18 +32,21 @@ export default function useQuestions(examId) {
     setIsLoading(true)
     setError(null)
     try {
-      const data = await fetchQuestionsByExam(examId)
+      var data = await fetchQuestionsByExam(examId)
       setQuestions(data)
     } catch (err) {
-      setError(err.message)
+      setError(err.message || MESSAGES.question.loadError)
     } finally {
       setIsLoading(false)
     }
   }, [examId])
 
-  useEffect(() => {
-    loadQuestions()
-  }, [loadQuestions])
+  useEffect(
+    function () {
+      loadQuestions()
+    },
+    [loadQuestions],
+  )
 
   function openCreateDialog() {
     setEditingQuestion(null)
@@ -65,8 +72,10 @@ export default function useQuestions(examId) {
     try {
       if (editingQuestion) {
         await updateQuestion(editingQuestion.id, payload)
+        toast.success(MESSAGES.question.updated)
       } else {
         await createQuestion(payload)
+        toast.success(MESSAGES.question.created)
       }
       closeDialog()
       await loadQuestions()
@@ -85,9 +94,10 @@ export default function useQuestions(examId) {
     try {
       await deleteQuestion(deleteTarget.id)
       setDeleteTarget(null)
+      toast.success(MESSAGES.question.deleted)
       await loadQuestions()
     } catch (err) {
-      setError(err.message)
+      toast.error(err.message)
     } finally {
       setIsDeleting(false)
     }

@@ -3,16 +3,16 @@ import { ListChecks, Plus, Sparkles } from 'lucide-react'
 import useExamPicker from '../hooks/useExamPicker'
 import useQuestions from '../hooks/useQuestions'
 import ExamPickerCard from '../components/exam/ExamPickerCard'
-import QuestionCard from '../components/QuestionCard'
-import QuestionFormDialog from '../components/QuestionFormDialog'
-import ConfirmDialog from '../components/ConfirmDialog'
-import StatusBanner from '../components/StatusBanner'
-import EmptyState from '../components/EmptyState'
-import Spinner from '../components/Spinner'
+import QuestionCard from '../components/questions/QuestionCard'
+import QuestionFormDialog from '../components/questions/QuestionFormDialog'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
+import StatusBanner from '../components/ui/StatusBanner'
+import EmptyState from '../components/ui/EmptyState'
+import Spinner from '../components/ui/Spinner'
 
 export default function QuestionsPage() {
-  const picker = useExamPicker()
-  const questionsState = useQuestions(picker.examId)
+  var picker = useExamPicker()
+  var questionsState = useQuestions(picker.examId)
 
   if (picker.isLoadingMeta) {
     return (
@@ -37,7 +37,9 @@ export default function QuestionsPage() {
         <StatusBanner
           type="error"
           message={picker.error}
-          onDismiss={() => picker.setError(null)}
+          onDismiss={function () {
+            picker.setError(null)
+          }}
         />
       )}
 
@@ -45,7 +47,9 @@ export default function QuestionsPage() {
         <StatusBanner
           type="error"
           message={questionsState.error}
-          onDismiss={() => questionsState.setError(null)}
+          onDismiss={function () {
+            questionsState.setError(null)
+          }}
         />
       )}
 
@@ -88,6 +92,15 @@ export default function QuestionsPage() {
                 <Spinner size={18} />
                 <span className="text-sm">Chargement des questions…</span>
               </div>
+            ) : !picker.exam ? (
+              <EmptyState
+                icon={ListChecks}
+                title="Examen introuvable"
+                description={
+                  picker.error ||
+                  "Impossible de charger cet examen. Réessayez ou choisissez un autre examen."
+                }
+              />
             ) : questionsState.questions.length === 0 ? (
               <EmptyState
                 icon={ListChecks}
@@ -113,15 +126,17 @@ export default function QuestionsPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {questionsState.questions.map((question, index) => (
-                    <QuestionCard
-                      key={question.id}
-                      question={question}
-                      index={index}
-                      onEdit={questionsState.openEditDialog}
-                      onDelete={questionsState.setDeleteTarget}
-                    />
-                  ))}
+                  {questionsState.questions.map(function (question, index) {
+                    return (
+                      <QuestionCard
+                        key={question.id}
+                        question={question}
+                        index={index}
+                        onEdit={questionsState.openEditDialog}
+                        onDelete={questionsState.setDeleteTarget}
+                      />
+                    )
+                  })}
                 </div>
               </>
             )}
@@ -144,7 +159,9 @@ export default function QuestionsPage() {
         title="Supprimer cette question ?"
         description="Cette action est définitive. La question sera retirée de l'examen."
         isLoading={questionsState.isDeleting}
-        onCancel={() => questionsState.setDeleteTarget(null)}
+        onCancel={function () {
+          questionsState.setDeleteTarget(null)
+        }}
         onConfirm={questionsState.confirmDelete}
       />
     </div>

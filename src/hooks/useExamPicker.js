@@ -108,6 +108,7 @@ export default function useExamPicker() {
 
     async function loadExam() {
       setIsLoadingExam(true)
+      setExam(null)
       setError(null)
       try {
         const data = await fetchExamById(examId)
@@ -116,7 +117,10 @@ export default function useExamPicker() {
         if (data.courseId) setCourseId(String(data.courseId))
         if (data.chapterId) setChapterId(String(data.chapterId))
       } catch (err) {
-        if (!cancelled) setError(err.message)
+        if (!cancelled) {
+          setExam(null)
+          setError(err.message)
+        }
       } finally {
         if (!cancelled) setIsLoadingExam(false)
       }

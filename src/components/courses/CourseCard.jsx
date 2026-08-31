@@ -14,8 +14,8 @@ function formatDate(value) {
 }
 
 export default function CourseCard({ course, onDelete, isDeleting }) {
-  const chapterCount = course.chapters?.length
-  const date = formatDate(course.createdAt)
+  var chapterCount = course.chapters?.length
+  var date = formatDate(course.createdAt)
 
   return (
     <div className="index-card group flex flex-col p-5">
@@ -23,7 +23,9 @@ export default function CourseCard({ course, onDelete, isDeleting }) {
         <FileTypeBadge fileType={course.fileType} />
         <button
           type="button"
-          onClick={() => onDelete(course)}
+          onClick={function () {
+            onDelete(course)
+          }}
           disabled={isDeleting}
           aria-label={`Supprimer ${course.title}`}
           className="rounded-lg p-1.5 text-ink-600/50 transition-colors duration-150 hover:bg-pen-tint hover:text-pen disabled:opacity-40"

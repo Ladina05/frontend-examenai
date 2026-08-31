@@ -3,102 +3,116 @@ import { useSearchParams } from 'react-router-dom'
 import { fetchCourses } from '../api/courses'
 import { fetchChaptersByCourse, fetchChapterById } from '../api/chapters'
 import { generateExam } from '../api/exams'
+import { useToast } from '../context/ToastContext'
+import { MESSAGES } from '../constants/messages'
 
 export default function useExamGeneration() {
-  const [searchParams] = useSearchParams()
-  const initialChapterId = searchParams.get('chapterId') || ''
-  const initialCourseId = searchParams.get('courseId') || ''
+  var toast = useToast()
+  var [searchParams] = useSearchParams()
+  var initialChapterId = searchParams.get('chapterId') || ''
+  var initialCourseId = searchParams.get('courseId') || ''
 
-  const [courses, setCourses] = useState([])
-  const [chapters, setChapters] = useState([])
-  const [courseId, setCourseId] = useState(initialCourseId)
-  const [chapterId, setChapterId] = useState(initialChapterId)
-  const [chapter, setChapter] = useState(null)
+  var [courses, setCourses] = useState([])
+  var [chapters, setChapters] = useState([])
+  var [courseId, setCourseId] = useState(initialCourseId)
+  var [chapterId, setChapterId] = useState(initialChapterId)
+  var [chapter, setChapter] = useState(null)
 
-  const [examTitle, setExamTitle] = useState('')
-  const [examDescription, setExamDescription] = useState('')
-  const [numberOfQuestions, setNumberOfQuestions] = useState(5)
-  const [durationMinutes, setDurationMinutes] = useState(30)
-  const [difficultyLevel, setDifficultyLevel] = useState('MEDIUM')
-  const [questionTypes, setQuestionTypes] = useState(['QCM', 'TRUE_FALSE', 'OPEN'])
+  var [examTitle, setExamTitle] = useState('')
+  var [examDescription, setExamDescription] = useState('')
+  var [numberOfQuestions, setNumberOfQuestions] = useState(5)
+  var [durationMinutes, setDurationMinutes] = useState(30)
+  var [difficultyLevel, setDifficultyLevel] = useState('MEDIUM')
+  var [questionTypes, setQuestionTypes] = useState(['QCM', 'TRUE_FALSE', 'OPEN'])
 
-  const [isLoadingMeta, setIsLoadingMeta] = useState(true)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [error, setError] = useState(null)
-  const [exam, setExam] = useState(null)
+  var [isLoadingMeta, setIsLoadingMeta] = useState(true)
+  var [isGenerating, setIsGenerating] = useState(false)
+  var [error, setError] = useState(null)
+  var [exam, setExam] = useState(null)
 
-  useEffect(() => {
-    let cancelled = false
+  useEffect(function () {
+    var cancelled = false
     fetchCourses()
-      .then((data) => {
+      .then(function (data) {
         if (!cancelled) setCourses(data)
       })
-      .catch((err) => {
+      .catch(function (err) {
         if (!cancelled) setError(err.message)
       })
-      .finally(() => {
+      .finally(function () {
         if (!cancelled) setIsLoadingMeta(false)
       })
-    return () => {
+    return function () {
       cancelled = true
     }
   }, [])
 
-  useEffect(() => {
-    if (!courseId) {
-      setChapters([])
-      return
-    }
-    let cancelled = false
-    fetchChaptersByCourse(courseId)
-      .then((data) => {
-        if (cancelled) return
-        setChapters(data)
-        if (!chapterId && data.length > 0) {
-          setChapterId(String(data[0].id))
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.message)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [courseId])
+  useEffect(
+    function () {
+      if (!courseId) {
+        setChapters([])
+        return undefined
+      }
+      var cancelled = false
+      fetchChaptersByCourse(courseId)
+        .then(function (data) {
+          if (cancelled) return
+          setChapters(data)
+          if (!chapterId && data.length > 0) {
+            setChapterId(String(data[0].id))
+          }
+        })
+        .catch(function (err) {
+          if (!cancelled) setError(err.message)
+        })
+      return function () {
+        cancelled = true
+      }
+    },
+    [courseId],
+  )
 
-  useEffect(() => {
-    if (!chapterId) {
-      setChapter(null)
-      return
-    }
-    let cancelled = false
-    fetchChapterById(chapterId)
-      .then((data) => {
-        if (cancelled) return
-        setChapter(data)
-        setExamTitle((current) => (current.trim() ? current : `Examen — ${data.title}`))
-        if (data.courseId && !courseId) {
-          setCourseId(String(data.courseId))
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err.message)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [chapterId])
+  useEffect(
+    function () {
+      if (!chapterId) {
+        setChapter(null)
+        return undefined
+      }
+      var cancelled = false
+      fetchChapterById(chapterId)
+        .then(function (data) {
+          if (cancelled) return
+          setChapter(data)
+          setExamTitle(function (current) {
+            return current.trim() ? current : `Examen — ${data.title}`
+          })
+          if (data.courseId && !courseId) {
+            setCourseId(String(data.courseId))
+          }
+        })
+        .catch(function (err) {
+          if (!cancelled) setError(err.message)
+        })
+      return function () {
+        cancelled = true
+      }
+    },
+    [chapterId],
+  )
 
-  const canSubmit = useMemo(() => {
-    return (
-      Boolean(chapterId) &&
-      examTitle.trim().length > 0 &&
-      numberOfQuestions >= 1 &&
-      durationMinutes >= 1 &&
-      questionTypes.length > 0 &&
-      !isGenerating
-    )
-  }, [chapterId, examTitle, numberOfQuestions, durationMinutes, questionTypes, isGenerating])
+  var canSubmit = useMemo(
+    function () {
+      return (
+        Boolean(chapterId) &&
+        examTitle.trim().length > 0 &&
+        numberOfQuestions >= 1 &&
+        durationMinutes >= 1 &&
+        questionTypes.length > 0 &&
+        !isGenerating
+      )
+    },
+    [chapterId, examTitle, numberOfQuestions, durationMinutes, questionTypes, isGenerating],
+  )
 
   function selectCourse(nextCourseId) {
     setCourseId(nextCourseId)
@@ -113,9 +127,11 @@ export default function useExamGeneration() {
   }
 
   function toggleType(typeId) {
-    setQuestionTypes((prev) =>
-      prev.includes(typeId) ? prev.filter((t) => t !== typeId) : [...prev, typeId],
-    )
+    setQuestionTypes(function (prev) {
+      return prev.includes(typeId) ? prev.filter(function (t) {
+        return t !== typeId
+      }) : prev.concat(typeId)
+    })
   }
 
   async function handleSubmit(e) {
@@ -124,24 +140,28 @@ export default function useExamGeneration() {
     setExam(null)
 
     if (!canSubmit) {
-      setError('Complétez le formulaire avant de lancer la génération.')
+      var message = MESSAGES.exam.formIncomplete
+      setError(message)
+      toast.warning(message)
       return
     }
 
     setIsGenerating(true)
     try {
-      const created = await generateExam({
+      var created = await generateExam({
         examTitle: examTitle.trim(),
         examDescription: examDescription.trim() || null,
         chapterId: Number(chapterId),
         numberOfQuestions: Number(numberOfQuestions),
         durationMinutes: Number(durationMinutes),
-        difficultyLevel,
-        questionTypes,
+        difficultyLevel: difficultyLevel,
+        questionTypes: questionTypes,
       })
       setExam(created)
+      toast.success(MESSAGES.exam.generated(created.title, created.totalQuestions))
     } catch (err) {
       setError(err.message)
+      toast.error(err.message || MESSAGES.exam.generateError)
     } finally {
       setIsGenerating(false)
     }

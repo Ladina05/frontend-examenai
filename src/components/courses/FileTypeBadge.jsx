@@ -11,8 +11,8 @@ const LABELS = {
 }
 
 export default function FileTypeBadge({ fileType }) {
-  const style = STYLES[fileType] || STYLES.TEXT
-  const label = LABELS[fileType] || fileType || '?'
+  var style = STYLES[fileType] || STYLES.TEXT
+  var label = LABELS[fileType] || fileType || '?'
 
   return <span className={`badge ${style}`}>{label}</span>
 }
