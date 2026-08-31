@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import { DIFFICULTIES, QUESTION_TYPES } from '../../constants/examOptions'
-import Spinner from '../Spinner'
+import Spinner from '../ui/Spinner'
 
 export default function GenerationParamsForm({
   examTitle,

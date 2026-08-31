@@ -1,14 +1,14 @@
 import { Sparkles } from 'lucide-react'
 import useExamGeneration from '../hooks/useExamGeneration'
-import StatusBanner from '../components/StatusBanner'
-import Spinner from '../components/Spinner'
-import EmptyState from '../components/EmptyState'
+import StatusBanner from '../components/ui/StatusBanner'
+import Spinner from '../components/ui/Spinner'
+import EmptyState from '../components/ui/EmptyState'
 import GenerationSourceCard from '../components/generation/GenerationSourceCard'
 import GenerationParamsForm from '../components/generation/GenerationParamsForm'
 import GeneratedExamResult from '../components/generation/GeneratedExamResult'
 
 export default function GenerationPage() {
-  const generation = useExamGeneration()
+  var generation = useExamGeneration()
 
   if (generation.isLoadingMeta) {
     return (
@@ -34,7 +34,9 @@ export default function GenerationPage() {
         <StatusBanner
           type="error"
           message={generation.error}
-          onDismiss={() => generation.setError(null)}
+          onDismiss={function () {
+            generation.setError(null)
+          }}
         />
       )}
 

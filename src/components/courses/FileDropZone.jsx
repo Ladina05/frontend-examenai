@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { UploadCloud, FileText, X } from 'lucide-react'
 
-const ACCEPTED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt']
+var ACCEPTED_EXTENSIONS = ['.pdf', '.doc', '.docx', '.txt']
 
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} o`
@@ -10,11 +10,11 @@ function formatSize(bytes) {
 }
 
 export default function FileDropZone({ file, onFileSelected }) {
-  const inputRef = useRef(null)
-  const [isDragging, setIsDragging] = useState(false)
+  var inputRef = useRef(null)
+  var [isDragging, setIsDragging] = useState(false)
 
   function handleFiles(fileList) {
-    const picked = fileList?.[0]
+    var picked = fileList?.[0]
     if (picked) onFileSelected(picked)
   }
 
@@ -25,19 +25,25 @@ export default function FileDropZone({ file, onFileSelected }) {
         type="file"
         accept={ACCEPTED_EXTENSIONS.join(',')}
         className="hidden"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={function (e) {
+          handleFiles(e.target.files)
+        }}
       />
 
       {!file ? (
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => {
+          onClick={function () {
+            inputRef.current?.click()
+          }}
+          onDragOver={function (e) {
             e.preventDefault()
             setIsDragging(true)
           }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={(e) => {
+          onDragLeave={function () {
+            setIsDragging(false)
+          }}
+          onDrop={function (e) {
             e.preventDefault()
             setIsDragging(false)
             handleFiles(e.dataTransfer.files)
@@ -69,7 +75,9 @@ export default function FileDropZone({ file, onFileSelected }) {
           </div>
           <button
             type="button"
-            onClick={() => onFileSelected(null)}
+            onClick={function () {
+              onFileSelected(null)
+            }}
             aria-label="Retirer le fichier"
             className="shrink-0 rounded-lg p-1.5 text-ink-600 hover:bg-paper-100 hover:text-pen"
           >

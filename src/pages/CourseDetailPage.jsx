@@ -3,11 +3,11 @@ import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, BookOpen, ListTree, Sparkles } from 'lucide-react'
 import { fetchCourseById } from '../api/courses'
 import { fetchChaptersByCourse, fetchChapterById } from '../api/chapters'
-import FileTypeBadge from '../components/FileTypeBadge'
-import ChapterListItem from '../components/ChapterListItem'
-import StatusBanner from '../components/StatusBanner'
-import EmptyState from '../components/EmptyState'
-import Spinner from '../components/Spinner'
+import FileTypeBadge from '../components/courses/FileTypeBadge'
+import ChapterListItem from '../components/courses/ChapterListItem'
+import StatusBanner from '../components/ui/StatusBanner'
+import EmptyState from '../components/ui/EmptyState'
+import Spinner from '../components/ui/Spinner'
 
 export default function CourseDetailPage() {
   const { id } = useParams()

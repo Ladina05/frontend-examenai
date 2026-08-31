@@ -4,30 +4,33 @@ import { FileDown, FileOutput, Sparkles } from 'lucide-react'
 import useExamPicker from '../hooks/useExamPicker'
 import { downloadExamDocx, downloadExamPdf, triggerFileDownload } from '../api/export'
 import ExamPickerCard from '../components/exam/ExamPickerCard'
-import StatusBanner from '../components/StatusBanner'
-import EmptyState from '../components/EmptyState'
-import Spinner from '../components/Spinner'
+import StatusBanner from '../components/ui/StatusBanner'
+import EmptyState from '../components/ui/EmptyState'
+import Spinner from '../components/ui/Spinner'
+import { useToast } from '../context/ToastContext'
+import { MESSAGES } from '../constants/messages'
 
 export default function ExportPage() {
-  const picker = useExamPicker()
-  const [downloading, setDownloading] = useState(null)
-  const [downloadError, setDownloadError] = useState(null)
-  const [downloadSuccess, setDownloadSuccess] = useState(null)
+  var toast = useToast()
+  var picker = useExamPicker()
+  var [downloading, setDownloading] = useState(null)
 
   async function handleDownload(format) {
     if (!picker.examId) return
 
     setDownloading(format)
-    setDownloadError(null)
-    setDownloadSuccess(null)
 
     try {
-      const download = format === 'pdf' ? downloadExamPdf : downloadExamDocx
-      const { blob, filename } = await download(picker.examId)
-      triggerFileDownload(blob, filename)
-      setDownloadSuccess(`Fichier ${filename} téléchargé.`)
+      var download = format === 'pdf' ? downloadExamPdf : downloadExamDocx
+      var result = await download(picker.examId)
+      triggerFileDownload(result.blob, result.filename)
+      var message =
+        format === 'pdf'
+          ? MESSAGES.export.pdfSuccess(result.filename)
+          : MESSAGES.export.docxSuccess(result.filename)
+      toast.success(message)
     } catch (err) {
-      setDownloadError(err.message)
+      toast.error(err.message || MESSAGES.export.error)
     } finally {
       setDownloading(null)
     }
@@ -56,23 +59,9 @@ export default function ExportPage() {
         <StatusBanner
           type="error"
           message={picker.error}
-          onDismiss={() => picker.setError(null)}
-        />
-      )}
-
-      {downloadError && (
-        <StatusBanner
-          type="error"
-          message={downloadError}
-          onDismiss={() => setDownloadError(null)}
-        />
-      )}
-
-      {downloadSuccess && (
-        <StatusBanner
-          type="success"
-          message={downloadSuccess}
-          onDismiss={() => setDownloadSuccess(null)}
+          onDismiss={function () {
+            picker.setError(null)
+          }}
         />
       )}
 
@@ -113,8 +102,17 @@ export default function ExportPage() {
             ) : picker.isLoadingExam ? (
               <div className="flex items-center gap-2 py-16 text-ink-600">
                 <Spinner size={18} />
-                <span className="text-sm">Chargement de l'examen…</span>
+                <span className="text-sm">Chargement de l&apos;examen…</span>
               </div>
+            ) : !picker.exam ? (
+              <EmptyState
+                icon={FileOutput}
+                title="Examen introuvable"
+                description={
+                  picker.error ||
+                  "Impossible de charger cet examen. Réessayez ou choisissez un autre examen."
+                }
+              />
             ) : (
               <div className="space-y-6">
                 <div>
@@ -132,7 +130,9 @@ export default function ExportPage() {
                     type="button"
                     className="btn-primary"
                     disabled={Boolean(downloading)}
-                    onClick={() => handleDownload('pdf')}
+                    onClick={function () {
+                      handleDownload('pdf')
+                    }}
                   >
                     {downloading === 'pdf' ? <Spinner size={16} /> : <FileDown size={16} />}
                     Télécharger PDF
@@ -141,7 +141,9 @@ export default function ExportPage() {
                     type="button"
                     className="btn-secondary"
                     disabled={Boolean(downloading)}
-                    onClick={() => handleDownload('docx')}
+                    onClick={function () {
+                      handleDownload('docx')
+                    }}
                   >
                     {downloading === 'docx' ? <Spinner size={16} /> : <FileDown size={16} />}
                     Télécharger Word

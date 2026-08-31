@@ -1,42 +1,45 @@
 import { useEffect, useState } from 'react'
 import { BookOpen, UploadCloud } from 'lucide-react'
 import { fetchCourses, uploadCourse, deleteCourse } from '../api/courses'
-import FileDropZone from '../components/FileDropZone'
-import CourseCard from '../components/CourseCard'
-import StatusBanner from '../components/StatusBanner'
-import EmptyState from '../components/EmptyState'
-import ConfirmDialog from '../components/ConfirmDialog'
-import Spinner from '../components/Spinner'
+import FileDropZone from '../components/courses/FileDropZone'
+import CourseCard from '../components/courses/CourseCard'
+import StatusBanner from '../components/ui/StatusBanner'
+import EmptyState from '../components/ui/EmptyState'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
+import Spinner from '../components/ui/Spinner'
+import { useToast } from '../context/ToastContext'
+import { MESSAGES } from '../constants/messages'
 
 export default function CoursesPage() {
-  const [courses, setCourses] = useState([])
-  const [isLoadingCourses, setIsLoadingCourses] = useState(true)
-  const [loadError, setLoadError] = useState(null)
+  var toast = useToast()
 
-  const [file, setFile] = useState(null)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formError, setFormError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
+  var [courses, setCourses] = useState([])
+  var [isLoadingCourses, setIsLoadingCourses] = useState(true)
+  var [loadError, setLoadError] = useState(null)
 
-  const [courseToDelete, setCourseToDelete] = useState(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  var [file, setFile] = useState(null)
+  var [title, setTitle] = useState('')
+  var [description, setDescription] = useState('')
+  var [isSubmitting, setIsSubmitting] = useState(false)
+  var [formError, setFormError] = useState(null)
+
+  var [courseToDelete, setCourseToDelete] = useState(null)
+  var [isDeleting, setIsDeleting] = useState(false)
 
   async function loadCourses() {
     setIsLoadingCourses(true)
     setLoadError(null)
     try {
-      const data = await fetchCourses()
+      var data = await fetchCourses()
       setCourses(data)
     } catch (err) {
-      setLoadError(err.message)
+      setLoadError(err.message || MESSAGES.course.loadError)
     } finally {
       setIsLoadingCourses(false)
     }
   }
 
-  useEffect(() => {
+  useEffect(function () {
     loadCourses()
   }, [])
 
@@ -45,24 +48,25 @@ export default function CoursesPage() {
     setFormError(null)
 
     if (!file) {
-      setFormError('Choisissez un fichier de cours avant de continuer.')
+      setFormError(MESSAGES.course.validationFile)
       return
     }
     if (!title.trim()) {
-      setFormError('Donnez un titre à ce cours.')
+      setFormError(MESSAGES.course.validationTitle)
       return
     }
 
     setIsSubmitting(true)
     try {
-      await uploadCourse({ file, title: title.trim(), description: description.trim() })
-      setSuccessMessage(`« ${title.trim()} » a été ajouté et ses chapitres ont été extraits.`)
+      await uploadCourse({ file: file, title: title.trim(), description: description.trim() })
+      toast.success(MESSAGES.course.uploaded(title.trim()))
       setFile(null)
       setTitle('')
       setDescription('')
       await loadCourses()
     } catch (err) {
       setFormError(err.message)
+      toast.error(err.message)
     } finally {
       setIsSubmitting(false)
     }
@@ -73,10 +77,15 @@ export default function CoursesPage() {
     setIsDeleting(true)
     try {
       await deleteCourse(courseToDelete.id)
-      setCourses((prev) => prev.filter((c) => c.id !== courseToDelete.id))
+      setCourses(function (prev) {
+        return prev.filter(function (c) {
+          return c.id !== courseToDelete.id
+        })
+      })
       setCourseToDelete(null)
+      toast.success(MESSAGES.course.deleted)
     } catch (err) {
-      setLoadError(err.message)
+      toast.error(err.message)
     } finally {
       setIsDeleting(false)
     }
@@ -111,7 +120,9 @@ export default function CoursesPage() {
                 id="title"
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={function (e) {
+                  setTitle(e.target.value)
+                }}
                 placeholder="ex. Design UX/UI — Prototypage"
                 className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
               />
@@ -124,18 +135,21 @@ export default function CoursesPage() {
                 id="description"
                 type="text"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={function (e) {
+                  setDescription(e.target.value)
+                }}
                 placeholder="ex. Semestre 2, ENI Fianarantsoa"
                 className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
               />
             </div>
           </div>
 
-          <StatusBanner type="error" message={formError} onDismiss={() => setFormError(null)} />
           <StatusBanner
-            type="success"
-            message={successMessage}
-            onDismiss={() => setSuccessMessage(null)}
+            type="error"
+            message={formError}
+            onDismiss={function () {
+              setFormError(null)
+            }}
           />
 
           <div className="flex justify-end">
@@ -156,7 +170,13 @@ export default function CoursesPage() {
 
         {loadError && (
           <div className="mb-4">
-            <StatusBanner type="error" message={loadError} onDismiss={() => setLoadError(null)} />
+            <StatusBanner
+              type="error"
+              message={loadError}
+              onDismiss={function () {
+                setLoadError(null)
+              }}
+            />
           </div>
         )}
 
@@ -173,14 +193,16 @@ export default function CoursesPage() {
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onDelete={setCourseToDelete}
-                isDeleting={isDeleting && courseToDelete?.id === course.id}
-              />
-            ))}
+            {courses.map(function (course) {
+              return (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onDelete={setCourseToDelete}
+                  isDeleting={isDeleting && courseToDelete?.id === course.id}
+                />
+              )
+            })}
           </div>
         )}
       </section>
@@ -190,10 +212,12 @@ export default function CoursesPage() {
         title="Supprimer ce cours ?"
         description={
           courseToDelete
-            ? `« ${courseToDelete.title} » et tous ses chapitres seront définitivement supprimés.`
+            ? `« ${courseToDelete.title} », ses chapitres et les examens associés seront définitivement supprimés.`
             : ''
         }
-        onCancel={() => setCourseToDelete(null)}
+        onCancel={function () {
+          setCourseToDelete(null)
+        }}
         onConfirm={handleConfirmDelete}
         isLoading={isDeleting}
       />

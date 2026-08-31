@@ -31,6 +31,11 @@ export default {
           dark: '#4644B8',
           tint: '#EFEEFC',
         },
+        amber: {
+          50: '#FFFBEB',
+          300: '#FCD34D',
+          900: '#78350F',
+        },
       },
       fontFamily: {
         display: ['"Fraunces"', 'ui-serif', 'Georgia', 'serif'],
@@ -55,10 +60,15 @@ export default {
           '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
           '50%': { transform: 'translate(12px, -14px) scale(1.04)' },
         },
+        toastSlideIn: {
+          '0%': { opacity: 0, transform: 'translateX(12px)' },
+          '100%': { opacity: 1, transform: 'translateX(0)' },
+        },
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.4s ease-out both',
         'float-slow': 'floatSlow 10s ease-in-out infinite',
+        'toast-in': 'toastSlideIn 0.25s ease-out both',
       },
     },
   },

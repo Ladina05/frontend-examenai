@@ -42,6 +42,9 @@
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-900/15 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 transition-all duration-150 hover:border-ink-900/30 hover:bg-paper-100 active:scale-[0.97];
   }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-pen px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-pen-dark active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-ink-400 disabled:active:scale-100;
+  }
   .badge {
     @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide;
   }

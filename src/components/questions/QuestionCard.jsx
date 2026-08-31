@@ -1,20 +1,20 @@
 import { Pencil, Trash2, Check } from 'lucide-react'
 
-const TYPE_LABELS = {
+var TYPE_LABELS = {
   QCM: 'QCM',
   TRUE_FALSE: 'Vrai / Faux',
   OPEN: 'Question ouverte',
   FILL_IN_BLANK: 'Texte à trous',
 }
 
-const DIFFICULTY_LABELS = {
+var DIFFICULTY_LABELS = {
   EASY: 'Facile',
   MEDIUM: 'Moyen',
   HARD: 'Difficile',
 }
 
 export default function QuestionCard({ question, index, onEdit, onDelete }) {
-  const hasOptions = Array.isArray(question.options) && question.options.length > 0
+  var hasOptions = Array.isArray(question.options) && question.options.length > 0
 
   return (
     <div className="index-card p-5">
@@ -35,7 +35,9 @@ export default function QuestionCard({ question, index, onEdit, onDelete }) {
         <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
-            onClick={() => onEdit(question)}
+            onClick={function () {
+              onEdit(question)
+            }}
             aria-label="Modifier la question"
             className="rounded-lg p-1.5 text-ink-600 transition-colors duration-150 hover:bg-paper-100 hover:text-violet-dark"
           >
@@ -43,7 +45,9 @@ export default function QuestionCard({ question, index, onEdit, onDelete }) {
           </button>
           <button
             type="button"
-            onClick={() => onDelete(question)}
+            onClick={function () {
+              onDelete(question)
+            }}
             aria-label="Supprimer la question"
             className="rounded-lg p-1.5 text-ink-600 transition-colors duration-150 hover:bg-pen-tint hover:text-pen"
           >
@@ -56,8 +60,8 @@ export default function QuestionCard({ question, index, onEdit, onDelete }) {
 
       {hasOptions ? (
         <ul className="mt-3 space-y-1.5">
-          {question.options.map((option, i) => {
-            const isCorrect = option === question.correctAnswer
+          {question.options.map(function (option, i) {
+            var isCorrect = option === question.correctAnswer
             return (
               <li
                 key={i}
