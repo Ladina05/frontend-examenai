@@ -20,7 +20,7 @@ export function ToastProvider({ children }) {
       if (!message) return
       var id = Date.now() + Math.random()
       setToasts(function (prev) {
-        return prev.concat({ id: id, type: type, message: message })
+        return prev.concat({ id: id, type: type, message: message, duration: TOAST_DURATION_MS })
       })
       window.setTimeout(function () {
         dismiss(id)

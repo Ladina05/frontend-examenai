@@ -82,7 +82,7 @@ export default function HomePage() {
         <div className="relative max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-widest text-pen">ExamGenAI</p>
           <h1 className="mt-3 font-display text-4xl font-semibold leading-tight text-ink-900 sm:text-5xl">
-            Vos cours deviennent des examens.
+            Générer vos examens à partir d'un cours.
           </h1>
           <p className="mt-4 text-base leading-relaxed text-ink-600">
             Déposez un support de cours, laissez ExamGenAI en extraire les chapitres,

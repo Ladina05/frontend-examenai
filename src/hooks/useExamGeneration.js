@@ -6,6 +6,26 @@ import { generateExam } from '../api/exams'
 import { useToast } from '../context/ToastContext'
 import { MESSAGES } from '../constants/messages'
 
+var HISTORY_STORAGE_KEY = 'examgenai:generated-exams'
+
+function loadHistoryFromStorage() {
+  try {
+    var raw = localStorage.getItem(HISTORY_STORAGE_KEY)
+    var parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function saveHistoryToStorage(list) {
+  try {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list))
+  } catch {
+    // localStorage indisponible (navigation privée, etc.) : on ignore simplement.
+  }
+}
+
 export default function useExamGeneration() {
   var toast = useToast()
   var [searchParams] = useSearchParams()
@@ -29,6 +49,10 @@ export default function useExamGeneration() {
   var [isGenerating, setIsGenerating] = useState(false)
   var [error, setError] = useState(null)
   var [exam, setExam] = useState(null)
+
+  // Historique permanent des examens générés (persisté en localStorage),
+  // indépendant du chapitre/cours actuellement sélectionné dans le formulaire.
+  var [examsHistory, setExamsHistory] = useState(loadHistoryFromStorage)
 
   useEffect(function () {
     var cancelled = false
@@ -134,6 +158,35 @@ export default function useExamGeneration() {
     })
   }
 
+  function addToHistory(createdExam) {
+    var courseTitle = courses.find(function (c) {
+      return String(c.id) === String(courseId)
+    })?.title || ''
+    var chapterTitle = chapter ? chapter.title : ''
+
+    var entry = {
+      id: createdExam.id,
+      title: createdExam.title,
+      totalQuestions: createdExam.totalQuestions,
+      durationMinutes: createdExam.durationMinutes,
+      difficultyLevel: createdExam.difficultyLevel,
+      courseId: createdExam.courseId ?? (courseId ? Number(courseId) : null),
+      chapterId: createdExam.chapterId ?? Number(chapterId),
+      courseTitle: courseTitle,
+      chapterTitle: chapterTitle,
+      generatedAt: new Date().toISOString(),
+    }
+
+    setExamsHistory(function (prev) {
+      var withoutDuplicate = prev.filter(function (item) {
+        return item.id !== entry.id
+      })
+      var next = [entry].concat(withoutDuplicate)
+      saveHistoryToStorage(next)
+      return next
+    })
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
@@ -143,7 +196,7 @@ export default function useExamGeneration() {
       var message = MESSAGES.exam.formIncomplete
       setError(message)
       toast.warning(message)
-      return
+      return null
     }
 
     setIsGenerating(true)
@@ -159,9 +212,12 @@ export default function useExamGeneration() {
       })
       setExam(created)
       toast.success(MESSAGES.exam.generated(created.title, created.totalQuestions))
+      addToHistory(created)
+      return created
     } catch (err) {
       setError(err.message)
       toast.error(err.message || MESSAGES.exam.generateError)
+      return null
     } finally {
       setIsGenerating(false)
     }
@@ -194,5 +250,6 @@ export default function useExamGeneration() {
     exam,
     canSubmit,
     handleSubmit,
+    examsHistory,
   }
 }
