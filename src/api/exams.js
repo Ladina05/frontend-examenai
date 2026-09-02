@@ -15,6 +15,11 @@ export async function fetchExamsByChapter(chapterId) {
   return data.data
 }
 
+export async function fetchExamsByCourse(courseId) {
+  const { data } = await apiClient.get(`/exams/course/${courseId}`)
+  return data.data
+}
+
 export async function deleteExam(id) {
   const { data } = await apiClient.delete(`/exams/${id}`)
   return data

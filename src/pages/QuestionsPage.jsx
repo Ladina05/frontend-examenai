@@ -1,37 +1,23 @@
 import { Link } from 'react-router-dom'
-import { ListChecks, Plus, Sparkles } from 'lucide-react'
+import { ListChecks, Plus, ArrowLeft } from 'lucide-react'
 import useExamPicker from '../hooks/useExamPicker'
 import useQuestions from '../hooks/useQuestions'
-import ExamPickerCard from '../components/exam/ExamPickerCard'
+import StatusBanner from '../components/ui/StatusBanner'
+import Spinner from '../components/ui/Spinner'
+import EmptyState from '../components/ui/EmptyState'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 import QuestionCard from '../components/questions/QuestionCard'
 import QuestionFormDialog from '../components/questions/QuestionFormDialog'
-import ConfirmDialog from '../components/ui/ConfirmDialog'
-import StatusBanner from '../components/ui/StatusBanner'
-import EmptyState from '../components/ui/EmptyState'
-import Spinner from '../components/ui/Spinner'
+import ExamSourceCard from '../components/exam/ExamSourceCard'
+import ExamSelectCard from '../components/exam/ExamSelectCard'
 
 export default function QuestionsPage() {
   var picker = useExamPicker()
   var questionsState = useQuestions(picker.examId)
 
-  if (picker.isLoadingMeta) {
-    return (
-      <div className="flex items-center gap-2 py-16 text-ink-600">
-        <Spinner size={18} />
-        <span className="text-sm">Chargement…</span>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-8">
-      <header>
-        <p className="font-mono text-xs uppercase tracking-widest text-pen">Étape 4</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">Édition des questions</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600">
-          Relisez, corrigez ou complétez les questions générées avant l&apos;export final.
-        </p>
-      </header>
+    <div className="space-y-6">
+      <Header exam={picker.exam} />
 
       {picker.error && (
         <StatusBanner
@@ -43,7 +29,36 @@ export default function QuestionsPage() {
         />
       )}
 
-      {questionsState.error && (
+      <div className="grid gap-6 lg:grid-cols-[1fr,1.1fr]">
+        <ExamSourceCard
+          courses={picker.courses}
+          chapters={picker.chapters}
+          courseId={picker.courseId}
+          chapterId={picker.chapterId}
+          onCourseChange={picker.selectCourse}
+          onChapterChange={picker.selectChapter}
+        />
+        <ExamSelectCard
+          exams={picker.exams}
+          chapterId={picker.chapterId}
+          examId={picker.examId}
+          exam={picker.exam}
+          onExamChange={picker.selectExam}
+        />
+      </div>
+
+      {!picker.examId ? (
+        <EmptyState
+          icon={ListChecks}
+          title="Aucun examen sélectionné"
+          description="Choisissez un cours, un chapitre (ou « Toutes les chapitres ») puis un examen ci-dessus pour éditer ses questions."
+        />
+      ) : picker.isLoadingExam || questionsState.isLoading ? (
+        <div className="flex items-center gap-2 py-16 text-ink-600">
+          <Spinner size={18} />
+          <span className="text-sm">Chargement des questions…</span>
+        </div>
+      ) : questionsState.error ? (
         <StatusBanner
           type="error"
           message={questionsState.error}
@@ -51,102 +66,49 @@ export default function QuestionsPage() {
             questionsState.setError(null)
           }}
         />
-      )}
-
-      {picker.courses.length === 0 ? (
-        <EmptyState
-          icon={Sparkles}
-          title="Aucun cours disponible"
-          description="Générez d'abord un examen à partir d'un support de cours."
-          action={
-            <Link to="/generation" className="btn-primary">
-              <Sparkles size={16} />
-              Générer un examen
-            </Link>
-          }
-        />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[320px,1fr]">
-          <ExamPickerCard
-            courses={picker.courses}
-            chapters={picker.chapters}
-            exams={picker.exams}
-            courseId={picker.courseId}
-            chapterId={picker.chapterId}
-            examId={picker.examId}
-            exam={picker.exam}
-            onCourseChange={picker.selectCourse}
-            onChapterChange={picker.selectChapter}
-            onExamChange={picker.selectExam}
-          />
+        <>
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold text-ink-900">
+              {questionsState.questions.length} question{questionsState.questions.length > 1 ? 's' : ''}
+            </h2>
+            <button type="button" onClick={questionsState.openCreateDialog} className="btn-primary">
+              <Plus size={16} />
+              Ajouter une question
+            </button>
+          </div>
 
-          <section className="space-y-4">
-            {!picker.examId ? (
-              <EmptyState
-                icon={ListChecks}
-                title="Choisissez un examen"
-                description="Sélectionnez un cours, un chapitre puis l'examen à éditer."
-              />
-            ) : picker.isLoadingExam || questionsState.isLoading ? (
-              <div className="flex items-center gap-2 py-16 text-ink-600">
-                <Spinner size={18} />
-                <span className="text-sm">Chargement des questions…</span>
-              </div>
-            ) : !picker.exam ? (
-              <EmptyState
-                icon={ListChecks}
-                title="Examen introuvable"
-                description={
-                  picker.error ||
-                  "Impossible de charger cet examen. Réessayez ou choisissez un autre examen."
-                }
-              />
-            ) : questionsState.questions.length === 0 ? (
-              <EmptyState
-                icon={ListChecks}
-                title="Aucune question"
-                description="Cet examen ne contient pas encore de questions."
-                action={
-                  <button type="button" className="btn-primary" onClick={questionsState.openCreateDialog}>
-                    <Plus size={16} />
-                    Ajouter une question
-                  </button>
-                }
-              />
-            ) : (
-              <>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-ink-600">
-                    {questionsState.questions.length} question(s) dans « {picker.exam?.title} »
-                  </p>
-                  <button type="button" className="btn-primary" onClick={questionsState.openCreateDialog}>
-                    <Plus size={16} />
-                    Ajouter
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {questionsState.questions.map(function (question, index) {
-                    return (
-                      <QuestionCard
-                        key={question.id}
-                        question={question}
-                        index={index}
-                        onEdit={questionsState.openEditDialog}
-                        onDelete={questionsState.setDeleteTarget}
-                      />
-                    )
-                  })}
-                </div>
-              </>
-            )}
-          </section>
-        </div>
+          {questionsState.questions.length === 0 ? (
+            <EmptyState
+              icon={ListChecks}
+              title="Aucune question pour l'instant"
+              description="Ajoutez votre première question à cet examen."
+              action={
+                <button type="button" onClick={questionsState.openCreateDialog} className="btn-primary">
+                  <Plus size={16} />
+                  Ajouter une question
+                </button>
+              }
+            />
+          ) : (
+            <div className="space-y-4">
+              {questionsState.questions.map((question, index) => (
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  index={index}
+                  onEdit={questionsState.openEditDialog}
+                  onDelete={questionsState.setDeleteTarget}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <QuestionFormDialog
         open={questionsState.dialogOpen}
-        examId={Number(picker.examId)}
+        examId={picker.examId}
         initialQuestion={questionsState.editingQuestion}
         isSubmitting={questionsState.isSubmitting}
         error={questionsState.submitError}
@@ -157,13 +119,34 @@ export default function QuestionsPage() {
       <ConfirmDialog
         open={Boolean(questionsState.deleteTarget)}
         title="Supprimer cette question ?"
-        description="Cette action est définitive. La question sera retirée de l'examen."
-        isLoading={questionsState.isDeleting}
+        description="Cette question sera définitivement retirée de l'examen."
         onCancel={function () {
           questionsState.setDeleteTarget(null)
         }}
         onConfirm={questionsState.confirmDelete}
+        isLoading={questionsState.isDeleting}
       />
     </div>
+  )
+}
+
+function Header({ exam }) {
+  return (
+    <header>
+      <Link
+        to="/generation"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-ink-600 transition-colors hover:text-pen"
+      >
+        <ArrowLeft size={15} />
+        Retour à la génération
+      </Link>
+      <p className="font-mono text-xs uppercase tracking-widest text-pen">Étape 4</p>
+      <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">Édition des questions</h1>
+      {exam && (
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-600">
+          Examen : <span className="font-medium text-ink-800">{exam.title}</span>
+        </p>
+      )}
+    </header>
   )
 }
