@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { fetchCourses } from '../api/courses'
 import { fetchChaptersByCourse } from '../api/chapters'
-import { fetchExamsByChapter, fetchExamById } from '../api/exams'
+import { fetchExamsByChapter, fetchExamsByCourse, fetchExamById } from '../api/exams'
+
+export var ALL_CHAPTERS_VALUE = 'ALL'
 
 export default function useExamPicker() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -55,9 +57,6 @@ export default function useExamPicker() {
         const data = await fetchChaptersByCourse(courseId)
         if (cancelled) return
         setChapters(data)
-        if (!chapterId && data.length > 0) {
-          setChapterId(String(data[0].id))
-        }
       } catch (err) {
         if (!cancelled) setError(err.message)
       }
@@ -79,14 +78,11 @@ export default function useExamPicker() {
 
     async function loadExams() {
       try {
-        const data = await fetchExamsByChapter(chapterId)
+        const data = chapterId === ALL_CHAPTERS_VALUE
+          ? await fetchExamsByCourse(courseId)
+          : await fetchExamsByChapter(chapterId)
         if (cancelled) return
         setExams(data)
-        if (!examId && data.length > 0) {
-          const nextExamId = String(data[0].id)
-          setExamId(nextExamId)
-          setSearchParams({ examId: nextExamId })
-        }
       } catch (err) {
         if (!cancelled) setError(err.message)
       }
@@ -96,7 +92,7 @@ export default function useExamPicker() {
     return () => {
       cancelled = true
     }
-  }, [chapterId])
+  }, [chapterId, courseId])
 
   useEffect(() => {
     if (!examId) {
@@ -115,7 +111,11 @@ export default function useExamPicker() {
         if (cancelled) return
         setExam(data)
         if (data.courseId) setCourseId(String(data.courseId))
-        if (data.chapterId) setChapterId(String(data.chapterId))
+        if (data.chapterId) {
+          setChapterId(String(data.chapterId))
+        } else if (data.courseId) {
+          setChapterId(ALL_CHAPTERS_VALUE)
+        }
       } catch (err) {
         if (!cancelled) {
           setExam(null)
@@ -155,7 +155,7 @@ export default function useExamPicker() {
 
   function selectExam(nextExamId) {
     setExamId(nextExamId)
-    setSearchParams({ examId: nextExamId })
+    setSearchParams(nextExamId ? { examId: nextExamId } : {})
   }
 
   return {

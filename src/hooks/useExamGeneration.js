@@ -6,6 +6,8 @@ import { generateExam } from '../api/exams'
 import { useToast } from '../context/ToastContext'
 import { MESSAGES } from '../constants/messages'
 
+export var ALL_CHAPTERS_VALUE = 'ALL'
+
 var HISTORY_STORAGE_KEY = 'examgenai:generated-exams'
 
 function loadHistoryFromStorage() {
@@ -50,8 +52,6 @@ export default function useExamGeneration() {
   var [error, setError] = useState(null)
   var [exam, setExam] = useState(null)
 
-  // Historique permanent des examens générés (persisté en localStorage),
-  // indépendant du chapitre/cours actuellement sélectionné dans le formulaire.
   var [examsHistory, setExamsHistory] = useState(loadHistoryFromStorage)
 
   useEffect(function () {
@@ -98,7 +98,7 @@ export default function useExamGeneration() {
 
   useEffect(
     function () {
-      if (!chapterId) {
+      if (!chapterId || chapterId === ALL_CHAPTERS_VALUE) {
         setChapter(null)
         return undefined
       }
@@ -124,9 +124,25 @@ export default function useExamGeneration() {
     [chapterId],
   )
 
+  // Pré-remplit le titre quand on choisit "Toutes les chapitres" pour un cours.
+  useEffect(
+    function () {
+      if (chapterId !== ALL_CHAPTERS_VALUE) return
+      var selectedCourse = courses.find(function (c) {
+        return String(c.id) === String(courseId)
+      })
+      if (!selectedCourse) return
+      setExamTitle(function (current) {
+        return current.trim() ? current : `Examen — ${selectedCourse.title} (tous les chapitres)`
+      })
+    },
+    [chapterId, courseId, courses],
+  )
+
   var canSubmit = useMemo(
     function () {
       return (
+        Boolean(courseId) &&
         Boolean(chapterId) &&
         examTitle.trim().length > 0 &&
         numberOfQuestions >= 1 &&
@@ -135,7 +151,7 @@ export default function useExamGeneration() {
         !isGenerating
       )
     },
-    [chapterId, examTitle, numberOfQuestions, durationMinutes, questionTypes, isGenerating],
+    [courseId, chapterId, examTitle, numberOfQuestions, durationMinutes, questionTypes, isGenerating],
   )
 
   function selectCourse(nextCourseId) {
@@ -158,11 +174,11 @@ export default function useExamGeneration() {
     })
   }
 
-  function addToHistory(createdExam) {
+  function addToHistory(createdExam, isAllChapters) {
     var courseTitle = courses.find(function (c) {
       return String(c.id) === String(courseId)
     })?.title || ''
-    var chapterTitle = chapter ? chapter.title : ''
+    var chapterTitle = isAllChapters ? 'Toutes les chapitres' : (chapter ? chapter.title : '')
 
     var entry = {
       id: createdExam.id,
@@ -171,7 +187,7 @@ export default function useExamGeneration() {
       durationMinutes: createdExam.durationMinutes,
       difficultyLevel: createdExam.difficultyLevel,
       courseId: createdExam.courseId ?? (courseId ? Number(courseId) : null),
-      chapterId: createdExam.chapterId ?? Number(chapterId),
+      chapterId: createdExam.chapterId ?? null,
       courseTitle: courseTitle,
       chapterTitle: chapterTitle,
       generatedAt: new Date().toISOString(),
@@ -199,12 +215,15 @@ export default function useExamGeneration() {
       return null
     }
 
+    var isAllChapters = chapterId === ALL_CHAPTERS_VALUE
+
     setIsGenerating(true)
     try {
       var created = await generateExam({
         examTitle: examTitle.trim(),
         examDescription: examDescription.trim() || null,
-        chapterId: Number(chapterId),
+        chapterId: isAllChapters ? null : Number(chapterId),
+        courseId: isAllChapters ? Number(courseId) : null,
         numberOfQuestions: Number(numberOfQuestions),
         durationMinutes: Number(durationMinutes),
         difficultyLevel: difficultyLevel,
@@ -212,7 +231,7 @@ export default function useExamGeneration() {
       })
       setExam(created)
       toast.success(MESSAGES.exam.generated(created.title, created.totalQuestions))
-      addToHistory(created)
+      addToHistory(created, isAllChapters)
       return created
     } catch (err) {
       setError(err.message)

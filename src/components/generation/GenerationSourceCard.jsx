@@ -1,3 +1,5 @@
+import { ALL_CHAPTERS_VALUE } from '../../hooks/useExamGeneration'
+
 export default function GenerationSourceCard({
   courses,
   chapters,
@@ -7,6 +9,11 @@ export default function GenerationSourceCard({
   onCourseChange,
   onChapterChange,
 }) {
+  var isAllChapters = chapterId === ALL_CHAPTERS_VALUE
+  var selectedCourse = courses.find(function (c) {
+    return String(c.id) === String(courseId)
+  })
+
   return (
     <section className="index-card space-y-5 border-solid p-6">
       <h2 className="font-display text-lg font-semibold text-ink-900">Source</h2>
@@ -32,10 +39,11 @@ export default function GenerationSourceCard({
         <select
           value={chapterId}
           onChange={(e) => onChapterChange(e.target.value)}
-          disabled={!courseId || chapters.length === 0}
+          disabled={!courseId}
           className="w-full rounded-xl border border-ink-900/15 bg-white px-3 py-2.5 text-sm disabled:bg-paper-100"
         >
           <option value="">Sélectionner un chapitre</option>
+          {courseId && <option value={ALL_CHAPTERS_VALUE}>Toutes les chapitres</option>}
           {chapters.map((ch) => (
             <option key={ch.id} value={ch.id}>
               {String(ch.chapterNumber).padStart(2, '0')} — {ch.title}
@@ -44,7 +52,19 @@ export default function GenerationSourceCard({
         </select>
       </label>
 
-      {chapter && (
+      {isAllChapters && selectedCourse && (
+        <div className="rounded-xl border border-dashed border-ink-900/12 bg-paper-50 p-4">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-pen">Aperçu</p>
+          <p className="mt-1 font-display text-base font-semibold text-ink-900">
+            {selectedCourse.title} — Tous les chapitres
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-ink-600">
+            L&apos;examen sera généré à partir du contenu de {selectedCourse.chapters?.length ?? 'tous les'} chapitre(s) de ce cours, combinés.
+          </p>
+        </div>
+      )}
+
+      {!isAllChapters && chapter && (
         <div className="rounded-xl border border-dashed border-ink-900/12 bg-paper-50 p-4">
           <p className="font-mono text-[11px] uppercase tracking-widest text-pen">Aperçu</p>
           <p className="mt-1 font-display text-base font-semibold text-ink-900">{chapter.title}</p>
