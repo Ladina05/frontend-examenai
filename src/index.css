@@ -42,10 +42,158 @@
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-900/15 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 transition-all duration-150 hover:border-ink-900/30 hover:bg-paper-100 active:scale-[0.97];
   }
-  .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-pen px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-pen-dark active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-ink-400 disabled:active:scale-100;
-  }
   .badge {
     @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide;
   }
+}
+
+@layer components {
+  /* Tableaux modernes */
+  .table-wrap {
+    @apply index-card overflow-x-auto border-solid p-0;
+  }
+  .data-table {
+    @apply w-full min-w-[640px] border-collapse text-sm;
+  }
+  .data-table thead {
+    @apply bg-paper-100/80;
+  }
+  .data-table th {
+    @apply whitespace-nowrap px-4 py-3 text-left font-mono text-[11px] font-semibold uppercase tracking-wide text-ink-600/70;
+  }
+  .data-table td {
+    @apply px-4 py-3 align-middle text-ink-800;
+  }
+  .data-table tbody tr {
+    @apply border-t border-dashed border-ink-900/10 transition-colors duration-150;
+  }
+  .data-table tbody tr:hover {
+    @apply bg-paper-50;
+  }
+  .table-actions {
+    @apply flex items-center justify-end gap-1;
+  }
+  .icon-btn {
+    @apply inline-flex items-center justify-center rounded-lg p-1.5 text-ink-600 transition-colors duration-150 hover:bg-paper-100 hover:text-pen disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .icon-btn-danger:hover {
+    @apply bg-pen-tint text-pen;
+  }
+}
+
+/* ============================================================
+   Toasts modernes — carte avec titre coloré + barre de progression
+   ============================================================ */
+.toast-card {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(22, 29, 41, 0.08);
+  box-shadow: 0 12px 32px -10px rgba(22, 29, 41, 0.22);
+  padding: 12px 14px 10px;
+}
+
+.toast-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast-card-icon {
+  flex-shrink: 0;
+}
+
+.toast-card-title {
+  flex: 1;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.toast-card-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 6px;
+  color: #7C8AA0;
+  opacity: 0.8;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+.toast-card-close:hover {
+  opacity: 1;
+  background-color: rgba(22, 29, 41, 0.06);
+}
+
+.toast-card-message {
+  margin: 4px 0 0;
+  padding-left: 24px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #2A3444;
+}
+
+.toast-progress-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(22, 29, 41, 0.07);
+}
+
+.toast-progress-bar {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  animation-name: toastShrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes toastShrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Couleurs par type d'action */
+.toast-success .toast-card-icon,
+.toast-success .toast-card-title {
+  color: #2F6B53;
+}
+.toast-success .toast-progress-bar {
+  background: #4C7A6C;
+}
+
+.toast-error .toast-card-icon,
+.toast-error .toast-card-title {
+  color: #9E2F29;
+}
+.toast-error .toast-progress-bar {
+  background: #C23B34;
+}
+
+.toast-info .toast-card-icon,
+.toast-info .toast-card-title {
+  color: #4644B8;
+}
+.toast-info .toast-progress-bar {
+  background: #5B5BD6;
+}
+
+.toast-warning .toast-card-icon,
+.toast-warning .toast-card-title {
+  color: #92650C;
+}
+.toast-warning .toast-progress-bar {
+  background: #D97706;
 }
