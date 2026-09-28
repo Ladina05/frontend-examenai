@@ -9,18 +9,14 @@ import EmptyState from '../components/ui/EmptyState'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import Modal from '../components/ui/Modal'
 import Spinner from '../components/ui/Spinner'
+import LoadingBlock from '../components/ui/LoadingBlock'
+import ListToolbar from '../components/ui/ListToolbar'
+import useListControls from '../hooks/useListControls'
 import { useToast } from '../context/ToastContext'
 import { MESSAGES } from '../constants/messages'
 
-function formatDate(value) {
-  if (!value) return null
-  try {
-    return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(
-      new Date(value),
-    )
-  } catch {
-    return null
-  }
+function courseSearchText(course) {
+  return [course.title, course.description, course.fileType].filter(Boolean).join(' ')
 }
 
 export default function CoursesPage() {
@@ -39,6 +35,8 @@ export default function CoursesPage() {
 
   var [courseToDelete, setCourseToDelete] = useState(null)
   var [isDeleting, setIsDeleting] = useState(false)
+
+  var list = useListControls(courses, { getSearchText: courseSearchText })
 
   async function loadCourses() {
     setIsLoadingCourses(true)
@@ -120,14 +118,13 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-pen">Bibliothèque</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold text-ink-900">Vos supports de cours</h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-600">
-            Déposez un support de cours pour que ses chapitres soient extraits automatiquement.
-            Vous pourrez ensuite en générer des examens, chapitre par chapitre.
+          <p className="page-header-kicker">Bibliothèque</p>
+          <h1 className="page-header-title">Vos supports de cours</h1>
+          <p className="page-header-desc">
+            Déposez un support : les chapitres sont extraits automatiquement, prêts pour la génération.
           </p>
         </div>
         <button type="button" className="btn-primary shrink-0" onClick={openModal}>
@@ -147,10 +144,7 @@ export default function CoursesPage() {
       )}
 
       {isLoadingCourses ? (
-        <div className="flex items-center gap-2 py-12 text-ink-600">
-          <Spinner size={18} />
-          <span className="text-sm">Récupération de vos cours…</span>
-        </div>
+        <LoadingBlock label="Récupération de vos cours…" />
       ) : courses.length === 0 ? (
         <EmptyState
           icon={BookOpen}
@@ -165,45 +159,50 @@ export default function CoursesPage() {
         />
       ) : (
         <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Titre</th>
-                <th>Description</th>
-                <th>Chapitres</th>
-                <th className="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map(function (course) {
-                var chapterCount = course.chapters?.length ?? 0
-                var date = formatDate(course.createdAt)
-                var isDeletingThisRow = isDeleting && courseToDelete?.id === course.id
-
-                return (
-                  <tr key={course.id}>
-                    <td>
-                      <FileTypeBadge fileType={course.fileType} />
-                    </td>
-                    <td>
-                      <Link to={`/courses/${course.id}`} className="font-medium text-ink-900 hover:text-pen">
-                        {course.title}
-                      </Link>
-                    </td>
-                    <td className="max-w-xs truncate text-ink-600">
-                      {course.description || <span className="text-ink-600/40">—</span>}
-                    </td>
-                    <td>
-                      <span className="badge bg-paper-100 text-ink-700">
-                        <Layers size={12} />
-                        {chapterCount}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="table-actions">
-                        <Link to={`/courses/${course.id}`} className="icon-btn" aria-label={`Ouvrir ${course.title}`}>
-                          <ArrowUpRight size={15} />
+          <ListToolbar
+            search={list.search}
+            onSearchChange={list.setSearch}
+            searchPlaceholder="Rechercher un cours…"
+            pageSize={list.pageSize}
+            onPageSizeChange={list.setPageSize}
+            page={list.page}
+            totalPages={list.totalPages}
+            totalItems={list.totalItems}
+            onPageChange={list.setPage}
+          />
+          {list.totalItems === 0 ? (
+            <p className="px-4 py-10 text-center text-sm text-ink-600">
+              Aucun résultat pour « {list.search} ».
+            </p>
+          ) : (
+            <>
+              <div className="mobile-card-list">
+                {list.pageItems.map(function (course) {
+                  var chapterCount = course.chapters?.length ?? 0
+                  var isDeletingThisRow = isDeleting && courseToDelete?.id === course.id
+                  return (
+                    <div key={course.id} className="mobile-card">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <Link to={`/courses/${course.id}`} className="mobile-card-title hover:text-pen">
+                            {course.title}
+                          </Link>
+                          <p className="mt-1 line-clamp-2 text-xs text-ink-600">
+                            {course.description || 'Aucune description'}
+                          </p>
+                        </div>
+                        <FileTypeBadge fileType={course.fileType} />
+                      </div>
+                      <div className="mobile-card-meta">
+                        <span className="badge bg-paper-100 text-ink-700">
+                          <Layers size={12} />
+                          {chapterCount} chapitre{chapterCount > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <div className="mobile-card-actions">
+                        <Link to={`/courses/${course.id}`} className="btn-secondary flex-1 py-2 text-xs">
+                          <ArrowUpRight size={14} />
+                          Ouvrir
                         </Link>
                         <button
                           type="button"
@@ -211,18 +210,82 @@ export default function CoursesPage() {
                             setCourseToDelete(course)
                           }}
                           disabled={isDeletingThisRow}
-                          aria-label={`Supprimer ${course.title}`}
-                          className="icon-btn icon-btn-danger"
+                          className="btn-ghost-danger"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={14} />
+                          Supprimer
                         </button>
                       </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="table-scroll">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Titre</th>
+                      <th>Description</th>
+                      <th>Chapitres</th>
+                      <th className="text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {list.pageItems.map(function (course) {
+                      var chapterCount = course.chapters?.length ?? 0
+                      var isDeletingThisRow = isDeleting && courseToDelete?.id === course.id
+
+                      return (
+                        <tr key={course.id}>
+                          <td>
+                            <FileTypeBadge fileType={course.fileType} />
+                          </td>
+                          <td>
+                            <Link
+                              to={`/courses/${course.id}`}
+                              className="font-medium text-ink-900 hover:text-pen"
+                            >
+                              {course.title}
+                            </Link>
+                          </td>
+                          <td className="max-w-xs truncate text-ink-600">
+                            {course.description || <span className="text-ink-600/40">—</span>}
+                          </td>
+                          <td>
+                            <span className="badge bg-paper-100 text-ink-700">
+                              <Layers size={12} />
+                              {chapterCount}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="table-actions">
+                              <Link to={`/courses/${course.id}`} className="btn-ghost">
+                                <ArrowUpRight size={14} />
+                                Ouvrir
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={function () {
+                                  setCourseToDelete(course)
+                                }}
+                                disabled={isDeletingThisRow}
+                                className="btn-ghost-danger"
+                              >
+                                <Trash2 size={14} />
+                                Supprimer
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -246,10 +309,9 @@ export default function CoursesPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <FileDropZone file={file} onFileSelected={setFile} />
-
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="title" className="mb-1.5 block text-sm font-medium text-ink-800">
+              <label htmlFor="title" className="field-label mb-1.5">
                 Titre du cours
               </label>
               <input
@@ -260,12 +322,12 @@ export default function CoursesPage() {
                   setTitle(e.target.value)
                 }}
                 placeholder="ex. Design UX/UI — Prototypage"
-                className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
+                className="field-input"
               />
             </div>
             <div>
-              <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-ink-800">
-                Description <span className="text-ink-600/50">(facultatif)</span>
+              <label htmlFor="description" className="field-label mb-1.5">
+                Description <span className="normal-case tracking-normal text-ink-600/50">(facultatif)</span>
               </label>
               <input
                 id="description"
@@ -275,11 +337,10 @@ export default function CoursesPage() {
                   setDescription(e.target.value)
                 }}
                 placeholder="ex. Semestre 2, ENI Fianarantsoa"
-                className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
+                className="field-input"
               />
             </div>
           </div>
-
           <StatusBanner
             type="error"
             message={formError}

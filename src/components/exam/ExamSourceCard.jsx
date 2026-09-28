@@ -7,43 +7,71 @@ export default function ExamSourceCard({
   chapterId,
   onCourseChange,
   onChapterChange,
+  chapterIdsWithExams,
+  hasAnyCourseExam,
 }) {
+  var examMap = chapterIdsWithExams || {}
+
   return (
-    <section className="index-card space-y-5 border-solid p-6">
-      <h2 className="font-display text-lg font-semibold text-ink-900">Source</h2>
+    <section className="surface space-y-4">
+      <h2 className="section-title">
+        <span className="section-step">1</span>
+        Source
+      </h2>
 
       <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-ink-600">Cours</span>
+        <span className="field-label">Cours</span>
         <select
           value={courseId}
-          onChange={(e) => onCourseChange(e.target.value)}
-          className="w-full rounded-xl border border-ink-900/15 bg-white px-3 py-2.5 text-sm"
+          onChange={function (e) {
+            onCourseChange(e.target.value)
+          }}
+          className="field-input"
         >
           <option value="">Sélectionner un cours</option>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.title}
-            </option>
-          ))}
+          {courses.map(function (course) {
+            return (
+              <option key={course.id} value={course.id}>
+                {course.title}
+              </option>
+            )
+          })}
         </select>
       </label>
 
       <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-ink-600">Chapitre</span>
+        <span className="field-label">Chapitre</span>
         <select
           value={chapterId}
-          onChange={(e) => onChapterChange(e.target.value)}
+          onChange={function (e) {
+            onChapterChange(e.target.value)
+          }}
           disabled={!courseId}
-          className="w-full rounded-xl border border-ink-900/15 bg-white px-3 py-2.5 text-sm disabled:bg-paper-100"
+          className="field-input"
         >
           <option value="">Sélectionner un chapitre</option>
-          {courseId && <option value={ALL_CHAPTERS_VALUE}>Toutes les chapitres</option>}
-          {chapters.map((chapter) => (
-            <option key={chapter.id} value={chapter.id}>
-              {String(chapter.chapterNumber).padStart(2, '0')} — {chapter.title}
+          {courseId && (
+            <option value={ALL_CHAPTERS_VALUE} disabled={!hasAnyCourseExam}>
+              {hasAnyCourseExam
+                ? 'Toutes les chapitres'
+                : 'Toutes les chapitres (aucun examen)'}
             </option>
-          ))}
+          )}
+          {chapters.map(function (chapter) {
+            var hasExam = Boolean(examMap[String(chapter.id)])
+            return (
+              <option key={chapter.id} value={chapter.id} disabled={!hasExam}>
+                {String(chapter.chapterNumber).padStart(2, '0')} — {chapter.title}
+                {hasExam ? '' : ' (aucun examen)'}
+              </option>
+            )
+          })}
         </select>
+        {courseId && (
+          <p className="text-xs text-ink-600/70">
+            Les chapitres sans examen généré sont grisés et non sélectionnables.
+          </p>
+        )}
       </label>
     </section>
   )

@@ -1,74 +1,83 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         ink: {
-          900: '#161D29',
-          800: '#1E2734',
-          700: '#2A3444',
-          600: '#3B4A60',
-          400: '#7C8AA0',
+          900: '#121826',
+          800: '#1A2332',
+          700: '#2B3648',
+          600: '#445468',
+          400: '#8494A8',
         },
         paper: {
-          50: '#FAFAF7',
-          100: '#F2F1EA',
-          200: '#E7E4D9',
+          50: '#F5F7FA',
+          100: '#EBEEF3',
+          200: '#DCE1E9',
         },
         pen: {
-          DEFAULT: '#C23B34',
-          dark: '#9E2F29',
-          light: '#E8635B',
-          tint: '#FBEAE8',
+          DEFAULT: '#C0392B',
+          dark: '#9B2E23',
+          light: '#E35A4C',
+          tint: '#FCEDEB',
         },
         sage: {
-          DEFAULT: '#4C7A6C',
-          tint: '#E7EFEA',
+          DEFAULT: '#3F6F5F',
+          tint: '#E6F0EB',
         },
         violet: {
-          DEFAULT: '#5B5BD6',
-          dark: '#4644B8',
-          tint: '#EFEEFC',
+          DEFAULT: '#4F5BD5',
+          dark: '#3E48B0',
+          tint: '#EEF0FB',
         },
         amber: {
-          50: '#FFFBEB',
-          300: '#FCD34D',
-          900: '#78350F',
+          50: '#FFF8EB',
+          300: '#F5C35B',
+          900: '#7A4E0F',
         },
       },
       fontFamily: {
         display: ['"Fraunces"', 'ui-serif', 'Georgia', 'serif'],
-        sans: ['"Inter"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Sora"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       boxShadow: {
-        card: '0 1px 2px rgba(22, 29, 41, 0.05), 0 8px 24px -12px rgba(22, 29, 41, 0.12)',
-        pop: '0 12px 32px -8px rgba(22, 29, 41, 0.20)',
-        rail: '1px 0 0 rgba(22, 29, 41, 0.06)',
+        card: '0 1px 0 rgba(18,24,38,0.04), 0 12px 32px -18px rgba(18,24,38,0.18)',
+        pop: '0 24px 48px -20px rgba(18,24,38,0.35)',
+        soft: '0 1px 0 rgba(18,24,38,0.05)',
+        rail: '0 1px 0 rgba(18,24,38,0.08)',
       },
       backgroundImage: {
-        'sidebar-wash': 'linear-gradient(180deg, #FFFFFF 0%, #FCFBF8 100%)',
-        'hero-blob': 'radial-gradient(circle at 30% 30%, rgba(91,91,214,0.16), transparent 60%), radial-gradient(circle at 75% 60%, rgba(194,59,52,0.13), transparent 55%)',
+        'app-mesh':
+          'radial-gradient(ellipse 90% 60% at 10% -10%, rgba(192,57,43,0.09), transparent 55%), radial-gradient(ellipse 70% 50% at 100% 0%, rgba(63,111,95,0.08), transparent 50%)',
+        'hero-band':
+          'linear-gradient(120deg, #FCEDEB 0%, #FFFFFF 42%, #E6F0EB 100%)',
       },
       keyframes: {
         fadeInUp: {
           '0%': { opacity: 0, transform: 'translateY(8px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
         },
-        floatSlow: {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '50%': { transform: 'translate(12px, -14px) scale(1.04)' },
+        modalIn: {
+          '0%': { opacity: 0, transform: 'translateY(14px) scale(0.98)' },
+          '100%': { opacity: 1, transform: 'translateY(0) scale(1)' },
+        },
+        backdropIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
         },
         toastSlideIn: {
-          '0%': { opacity: 0, transform: 'translateX(12px)' },
-          '100%': { opacity: 1, transform: 'translateX(0)' },
+          '0%': { opacity: 0, transform: 'translateY(-8px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
         },
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.4s ease-out both',
-        'float-slow': 'floatSlow 10s ease-in-out infinite',
-        'toast-in': 'toastSlideIn 0.25s ease-out both',
+        'modal-in': 'modalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'backdrop-in': 'backdropIn 0.2s ease-out both',
+        'toast-in': 'toastSlideIn 0.22s ease-out both',
       },
     },
   },

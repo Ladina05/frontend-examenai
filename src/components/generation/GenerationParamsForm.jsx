@@ -1,6 +1,14 @@
-import { Sparkles } from 'lucide-react'
+import { Check, CircleHelp, FileQuestion, ListChecks, PenLine } from 'lucide-react'
 import { DIFFICULTIES, QUESTION_TYPES } from '../../constants/examOptions'
-import Spinner from '../ui/Spinner'
+import FieldHint from '../ui/FieldHint'
+import GenerationProgress from './GenerationProgress'
+
+var TYPE_ICONS = {
+  QCM: ListChecks,
+  TRUE_FALSE: CircleHelp,
+  OPEN: PenLine,
+  FILL_IN_BLANK: FileQuestion,
+}
 
 export default function GenerationParamsForm({
   examTitle,
@@ -9,131 +17,180 @@ export default function GenerationParamsForm({
   onExamDescriptionChange,
   numberOfQuestions,
   onNumberOfQuestionsChange,
-  durationMinutes,
-  onDurationMinutesChange,
+  durationHours,
+  durationMins,
+  onDurationHoursChange,
+  onDurationMinsChange,
   difficultyLevel,
   onDifficultyChange,
   questionTypes,
   onToggleType,
-  canSubmit,
   isGenerating,
+  generationStep,
 }) {
   return (
-    <section className="index-card space-y-5 border-solid p-6">
-      <h2 className="font-display text-lg font-semibold text-ink-900">Paramètres</h2>
+    <div className="space-y-5">
+      <div>
+        <h2 className="font-display text-lg font-semibold text-ink-900">Format de l&apos;examen</h2>
+        <p className="mt-1 text-sm text-ink-600">
+          Définissez le titre, la durée et le style des questions.
+        </p>
+      </div>
 
       <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-ink-600">Titre</span>
+        <span className="field-label">
+          Titre de l&apos;examen
+          <FieldHint text="Affiché en tête du PDF / Word exporté." />
+        </span>
         <input
           type="text"
           value={examTitle}
-          onChange={(e) => onExamTitleChange(e.target.value)}
-          className="w-full rounded-xl border border-ink-900/15 px-3 py-2.5 text-sm"
-          placeholder="Examen chapitre 1"
+          onChange={function (e) {
+            onExamTitleChange(e.target.value)
+          }}
+          className="field-input"
+          placeholder="Ex. Contrôle continu — Chapitre 1"
           required
         />
       </label>
 
       <label className="block space-y-1.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-ink-600">Description</span>
+        <span className="field-label">
+          Consignes <span className="font-normal text-ink-400">(optionnel)</span>
+          <FieldHint text="Indications pour l’IA et consignes visibles dans l’examen." />
+        </span>
         <textarea
           value={examDescription}
-          onChange={(e) => onExamDescriptionChange(e.target.value)}
+          onChange={function (e) {
+            onExamDescriptionChange(e.target.value)
+          }}
           rows={2}
-          className="w-full rounded-xl border border-ink-900/15 px-3 py-2.5 text-sm"
-          placeholder="Optionnel"
+          className="field-input resize-none"
+          placeholder="Contexte ou consignes pour l’examen"
         />
       </label>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-3 gap-3">
         <label className="block space-y-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-ink-600">
-            Nombre de questions
+          <span className="field-label">
+            Questions
+            <FieldHint text="Entre 1 et 30 questions générées." />
           </span>
           <input
             type="number"
             min={1}
             max={30}
             value={numberOfQuestions}
-            onChange={(e) => onNumberOfQuestionsChange(e.target.value)}
-            className="w-full rounded-xl border border-ink-900/15 px-3 py-2.5 text-sm"
+            onChange={function (e) {
+              onNumberOfQuestionsChange(e.target.value)
+            }}
+            className="field-input"
           />
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-ink-600">
-            Durée (min)
+          <span className="field-label">
+            Heures
+            <FieldHint text="Durée indicative affichée sur l’examen." />
           </span>
           <input
             type="number"
-            min={1}
-            max={240}
-            value={durationMinutes}
-            onChange={(e) => onDurationMinutesChange(e.target.value)}
-            className="w-full rounded-xl border border-ink-900/15 px-3 py-2.5 text-sm"
+            min={0}
+            max={8}
+            value={durationHours}
+            onChange={function (e) {
+              onDurationHoursChange(e.target.value)
+            }}
+            className="field-input"
+          />
+        </label>
+        <label className="block space-y-1.5">
+          <span className="field-label">Minutes</span>
+          <input
+            type="number"
+            min={0}
+            max={59}
+            value={durationMins}
+            onChange={function (e) {
+              onDurationMinsChange(e.target.value)
+            }}
+            className="field-input"
           />
         </label>
       </div>
 
       <fieldset className="space-y-2">
-        <legend className="text-xs font-semibold uppercase tracking-wide text-ink-600">
+        <legend className="field-label">
           Difficulté
+          <FieldHint text="Influence le niveau de complexité demandé à l’IA." />
         </legend>
-        <div className="flex flex-wrap gap-2">
-          {DIFFICULTIES.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => onDifficultyChange(d.id)}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                difficultyLevel === d.id
-                  ? 'bg-pen text-white'
-                  : 'border border-ink-900/15 bg-white text-ink-700 hover:bg-paper-100'
-              }`}
-            >
-              {d.label}
-            </button>
-          ))}
+        <div className="grid grid-cols-3 gap-2">
+          {DIFFICULTIES.map(function (d) {
+            var active = difficultyLevel === d.id
+            return (
+              <button
+                key={d.id}
+                type="button"
+                title={d.hint}
+                onClick={function () {
+                  onDifficultyChange(d.id)
+                }}
+                className={`choice-card flex-row items-center gap-2.5 ${active ? 'choice-card-active' : ''}`}
+              >
+                <span className={`radio-box ${active ? 'radio-box-on' : ''}`}>
+                  {active ? <span className="radio-box-dot" /> : null}
+                </span>
+                <span className={`text-sm font-semibold ${active ? 'text-pen-dark' : 'text-ink-800'}`}>
+                  {d.label}
+                </span>
+              </button>
+            )
+          })}
         </div>
+        <p className="text-xs text-ink-600/70">
+          {DIFFICULTIES.find(function (d) {
+            return d.id === difficultyLevel
+          })?.hint || ''}
+        </p>
       </fieldset>
 
       <fieldset className="space-y-2">
-        <legend className="text-xs font-semibold uppercase tracking-wide text-ink-600">
+        <legend className="field-label">
           Types de questions
+          <FieldHint text="L’IA répartit les questions parmi les types cochés." />
         </legend>
-        <div className="flex flex-wrap gap-2">
-          {QUESTION_TYPES.map((t) => {
-            const active = questionTypes.includes(t.id)
+        <p className="text-xs text-ink-600/70">Cochez au moins un type. Survolez un type pour l’aide.</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {QUESTION_TYPES.map(function (t) {
+            var active = questionTypes.includes(t.id)
+            var Icon = TYPE_ICONS[t.id] || ListChecks
             return (
               <button
                 key={t.id}
                 type="button"
-                onClick={() => onToggleType(t.id)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  active
-                    ? 'bg-pen-tint text-pen-dark'
-                    : 'border border-ink-900/15 bg-white text-ink-700 hover:bg-paper-100'
-                }`}
+                title={t.hint}
+                onClick={function () {
+                  onToggleType(t.id)
+                }}
+                className={`choice-card flex-row items-center gap-2.5 ${active ? 'choice-card-active' : ''}`}
               >
-                {t.label}
+                <span className={`check-box ${active ? 'check-box-on' : ''}`}>
+                  {active ? <Check size={12} strokeWidth={3} /> : null}
+                </span>
+                <span className="flex min-w-0 items-center gap-2">
+                  <Icon size={16} className={active ? 'text-pen-dark' : 'text-ink-600'} />
+                  <span
+                    className={`truncate text-sm font-semibold ${active ? 'text-pen-dark' : 'text-ink-800'}`}
+                  >
+                    {t.label}
+                  </span>
+                </span>
               </button>
             )
           })}
         </div>
       </fieldset>
 
-      <button type="submit" disabled={!canSubmit} className="btn-primary w-full sm:w-auto">
-        {isGenerating ? (
-          <>
-            <Spinner size={16} />
-            Génération en cours…
-          </>
-        ) : (
-          <>
-            <Sparkles size={16} />
-            Générer l&apos;examen
-          </>
-        )}
-      </button>
-    </section>
+      {isGenerating && <GenerationProgress activeStep={generationStep} />}
+    </div>
   )
 }

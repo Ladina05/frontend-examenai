@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { fetchCourses } from '../api/courses'
 import { fetchChaptersByCourse, fetchChapterById } from '../api/chapters'
-import { generateExam } from '../api/exams'
+import { generateExam, deleteExam } from '../api/exams'
 import { useToast } from '../context/ToastContext'
 import { MESSAGES } from '../constants/messages'
+import { combineDuration, splitDuration } from '../utils/duration'
 
 export var ALL_CHAPTERS_VALUE = 'ALL'
 
@@ -43,16 +44,21 @@ export default function useExamGeneration() {
   var [examTitle, setExamTitle] = useState('')
   var [examDescription, setExamDescription] = useState('')
   var [numberOfQuestions, setNumberOfQuestions] = useState(5)
-  var [durationMinutes, setDurationMinutes] = useState(30)
+  var [durationMinutes, setDurationMinutes] = useState(90)
   var [difficultyLevel, setDifficultyLevel] = useState('MEDIUM')
   var [questionTypes, setQuestionTypes] = useState(['QCM', 'TRUE_FALSE', 'OPEN'])
 
   var [isLoadingMeta, setIsLoadingMeta] = useState(true)
   var [isGenerating, setIsGenerating] = useState(false)
+  var [generationStep, setGenerationStep] = useState(0)
   var [error, setError] = useState(null)
   var [exam, setExam] = useState(null)
 
   var [examsHistory, setExamsHistory] = useState(loadHistoryFromStorage)
+
+  var durationParts = useMemo(function () {
+    return splitDuration(durationMinutes)
+  }, [durationMinutes])
 
   useEffect(function () {
     var cancelled = false
@@ -107,9 +113,7 @@ export default function useExamGeneration() {
         .then(function (data) {
           if (cancelled) return
           setChapter(data)
-          setExamTitle(function (current) {
-            return current.trim() ? current : `Examen — ${data.title}`
-          })
+          setExamTitle(`Examen — ${data.title}`)
           if (data.courseId && !courseId) {
             setCourseId(String(data.courseId))
           }
@@ -124,7 +128,6 @@ export default function useExamGeneration() {
     [chapterId],
   )
 
-  // Pré-remplit le titre quand on choisit "Toutes les chapitres" pour un cours.
   useEffect(
     function () {
       if (chapterId !== ALL_CHAPTERS_VALUE) return
@@ -132,11 +135,30 @@ export default function useExamGeneration() {
         return String(c.id) === String(courseId)
       })
       if (!selectedCourse) return
-      setExamTitle(function (current) {
-        return current.trim() ? current : `Examen — ${selectedCourse.title} (tous les chapitres)`
-      })
+      setExamTitle(`Examen — ${selectedCourse.title} (tous les chapitres)`)
     },
     [chapterId, courseId, courses],
+  )
+
+  useEffect(
+    function () {
+      if (!isGenerating) {
+        setGenerationStep(0)
+        return undefined
+      }
+      setGenerationStep(0)
+      var t1 = setTimeout(function () {
+        setGenerationStep(1)
+      }, 1800)
+      var t2 = setTimeout(function () {
+        setGenerationStep(2)
+      }, 4200)
+      return function () {
+        clearTimeout(t1)
+        clearTimeout(t2)
+      }
+    },
+    [isGenerating],
   )
 
   var canSubmit = useMemo(
@@ -166,19 +188,30 @@ export default function useExamGeneration() {
     setExam(null)
   }
 
+  function setDurationHours(hours) {
+    setDurationMinutes(combineDuration(hours, durationParts.minutes))
+  }
+
+  function setDurationMinsOnly(minutes) {
+    setDurationMinutes(combineDuration(durationParts.hours, minutes))
+  }
+
   function toggleType(typeId) {
     setQuestionTypes(function (prev) {
-      return prev.includes(typeId) ? prev.filter(function (t) {
-        return t !== typeId
-      }) : prev.concat(typeId)
+      return prev.includes(typeId)
+        ? prev.filter(function (t) {
+            return t !== typeId
+          })
+        : prev.concat(typeId)
     })
   }
 
   function addToHistory(createdExam, isAllChapters) {
-    var courseTitle = courses.find(function (c) {
-      return String(c.id) === String(courseId)
-    })?.title || ''
-    var chapterTitle = isAllChapters ? 'Toutes les chapitres' : (chapter ? chapter.title : '')
+    var courseTitle =
+      courses.find(function (c) {
+        return String(c.id) === String(courseId)
+      })?.title || ''
+    var chapterTitle = isAllChapters ? 'Toutes les chapitres' : chapter ? chapter.title : ''
 
     var entry = {
       id: createdExam.id,
@@ -229,6 +262,7 @@ export default function useExamGeneration() {
         difficultyLevel: difficultyLevel,
         questionTypes: questionTypes,
       })
+      setGenerationStep(3)
       setExam(created)
       toast.success(MESSAGES.exam.generated(created.title, created.totalQuestions))
       addToHistory(created, isAllChapters)
@@ -239,6 +273,27 @@ export default function useExamGeneration() {
       return null
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  async function handleDeleteExam(examId) {
+    try {
+      await deleteExam(examId)
+      setExamsHistory(function (prev) {
+        var next = prev.filter(function (item) {
+          return item.id !== examId
+        })
+        saveHistoryToStorage(next)
+        return next
+      })
+      setExam(function (current) {
+        return current && current.id === examId ? null : current
+      })
+      toast.success(MESSAGES.exam.deleted)
+      return true
+    } catch (err) {
+      toast.error(err.message || MESSAGES.exam.deleteError)
+      return false
     }
   }
 
@@ -255,7 +310,10 @@ export default function useExamGeneration() {
     numberOfQuestions,
     setNumberOfQuestions,
     durationMinutes,
-    setDurationMinutes,
+    durationHours: durationParts.hours,
+    durationMins: durationParts.minutes,
+    setDurationHours,
+    setDurationMinsOnly,
     difficultyLevel,
     setDifficultyLevel,
     questionTypes,
@@ -264,11 +322,13 @@ export default function useExamGeneration() {
     selectChapter,
     isLoadingMeta,
     isGenerating,
+    generationStep,
     error,
     setError,
     exam,
     canSubmit,
     handleSubmit,
+    handleDeleteExam,
     examsHistory,
   }
 }

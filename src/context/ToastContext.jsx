@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 
 var ToastContext = createContext(null)
 
-var TOAST_DURATION_MS = 4500
+var TOAST_DURATION_MS = 5000
 
 export function ToastProvider({ children }) {
   var [toasts, setToasts] = useState([])
