@@ -13,65 +13,201 @@
     @apply bg-pen-tint text-pen-dark;
   }
   *:focus-visible {
-    outline: 2px solid #C23B34;
+    outline: 2px solid #C0392B;
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 8px;
   }
 }
 
 @layer components {
-  /* Fiche bristol : bordure en tirets façon carte perforée */
   .index-card {
-    @apply relative rounded-2xl border border-dashed border-ink-900/15 bg-white shadow-card transition-all duration-200;
+    @apply relative overflow-hidden rounded-2xl border border-ink-900/10 bg-white transition-all duration-200;
+    box-shadow: 0 1px 2px rgba(18, 24, 38, 0.03);
   }
   .index-card:hover {
-    @apply shadow-pop -translate-y-0.5 border-pen/40;
+    @apply border-pen/30;
+    box-shadow: 0 12px 28px -16px rgba(18, 24, 38, 0.2);
+    transform: translateY(-2px);
   }
 
-  /* Ligne de cahier pour les listes façon table des matières */
-  .toc-row {
-    @apply flex items-baseline gap-2 overflow-hidden;
+  .panel {
+    @apply rounded-2xl bg-paper-100/80 p-5;
   }
-  .toc-dots {
-    @apply flex-1 border-b border-dotted border-ink-900/25 translate-y-[-4px];
+  .surface {
+    @apply rounded-2xl border border-ink-900/10 bg-white p-5 sm:p-6;
+    box-shadow: 0 1px 2px rgba(18, 24, 38, 0.03);
+  }
+
+  .section-title {
+    @apply flex items-center gap-2.5 text-base font-bold tracking-tight text-ink-900;
+  }
+  .section-step {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pen text-xs font-bold text-white;
+  }
+
+  .field-label {
+    @apply mb-0 inline-flex items-center text-[11px] font-bold uppercase tracking-[0.06em] text-ink-600;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-ink-900/10 bg-white px-3.5 py-3 text-sm font-medium text-ink-900 transition-all placeholder:font-normal placeholder:text-ink-400 hover:border-ink-900/20 focus:border-pen focus:outline-none focus:ring-4 focus:ring-pen/10 disabled:cursor-not-allowed disabled:bg-paper-100;
+  }
+
+  select.field-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23445468' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 0.95rem;
+    cursor: pointer;
+  }
+  select.field-input:disabled {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238494A8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+
+  select.field-select-sm {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 1.6rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23445468' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.35rem center;
+    background-size: 0.8rem;
+    cursor: pointer;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-pen px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-pen-dark active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-ink-400 disabled:active:scale-100;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-pen px-5 py-2.5 text-sm font-bold text-white transition-all duration-150 hover:bg-pen-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-ink-400;
+    box-shadow: 0 8px 20px -10px rgba(192, 57, 43, 0.75);
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-900/15 bg-white px-5 py-2.5 text-sm font-semibold text-ink-800 transition-all duration-150 hover:border-ink-900/30 hover:bg-paper-100 active:scale-[0.97];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-900/10 bg-white px-5 py-2.5 text-sm font-bold text-ink-800 transition-colors duration-150 hover:bg-paper-100;
   }
-  .badge {
-    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide;
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-pen px-5 py-2.5 text-sm font-bold text-white transition-colors duration-150 hover:bg-pen-dark disabled:cursor-not-allowed disabled:bg-ink-400;
   }
-}
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-ink-700 transition-colors duration-150 hover:bg-pen-tint hover:text-pen-dark;
+  }
+  .btn-ghost-danger {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-ink-600 transition-colors duration-150 hover:bg-pen-tint hover:text-pen;
+  }
 
-@layer components {
-  /* Tableaux modernes */
+  .chip {
+    @apply rounded-xl px-3 py-1.5 text-xs font-bold transition-colors duration-150;
+  }
+  .chip-idle {
+    @apply border border-ink-900/10 bg-white text-ink-700 hover:bg-paper-100;
+  }
+  .chip-active {
+    @apply bg-pen text-white;
+  }
+  .chip-soft {
+    @apply bg-pen-tint text-pen-dark;
+  }
+
+  .choice-card {
+    @apply flex w-full flex-col items-start gap-1 rounded-2xl border border-ink-900/10 bg-white px-3.5 py-3.5 text-left transition-all duration-150 hover:border-pen/40;
+  }
+  .choice-card-active {
+    @apply border-pen bg-pen-tint;
+  }
+
+  /* Cases à cocher / radios custom */
+  .check-box {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-ink-900/20 bg-white transition-colors;
+  }
+  .check-box-on {
+    @apply border-pen bg-pen text-white;
+  }
+  .radio-box {
+    @apply flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-ink-900/20 bg-white transition-colors;
+  }
+  .radio-box-on {
+    @apply border-pen;
+  }
+  .radio-box-dot {
+    @apply h-2.5 w-2.5 rounded-full bg-pen;
+  }
+
+  input[type='checkbox'].input-check,
+  input[type='radio'].input-check {
+    @apply h-4 w-4 shrink-0 cursor-pointer rounded border-ink-900/20 text-pen accent-pen;
+  }
+  input[type='radio'].input-check {
+    @apply rounded-full;
+  }
+
+  .wizard-steps {
+    @apply flex items-center gap-2 rounded-2xl border border-ink-900/10 bg-paper-50 px-3 py-2.5 sm:px-4 sm:py-3;
+  }
+  .wizard-step {
+    @apply flex items-center gap-2 text-xs font-bold text-ink-600/45;
+  }
+  .wizard-step-active {
+    @apply text-pen;
+  }
+  .wizard-step-done {
+    @apply text-sage;
+  }
+  .wizard-dot {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current text-[11px] font-bold;
+  }
+  .wizard-step-active .wizard-dot {
+    @apply border-pen bg-pen text-white;
+  }
+  .wizard-step-done .wizard-dot {
+    @apply border-sage bg-sage text-white;
+  }
+  .wizard-line {
+    @apply h-px flex-1 bg-ink-900/10;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold tracking-wide;
+  }
+
+  .page-header-kicker {
+    @apply inline-flex items-center rounded-full bg-pen-tint px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-pen-dark;
+  }
+  .page-header-title {
+    @apply mt-3 text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl;
+  }
+  .page-header-desc {
+    @apply mt-2 max-w-xl text-sm leading-relaxed text-ink-600;
+  }
+
   .table-wrap {
-    @apply index-card overflow-x-auto border-solid p-0;
+    @apply overflow-hidden rounded-2xl border border-ink-900/10 bg-white;
+    box-shadow: 0 1px 2px rgba(18, 24, 38, 0.03);
+  }
+  .table-scroll {
+    @apply -mx-0 overflow-x-auto overscroll-x-contain;
+    -webkit-overflow-scrolling: touch;
   }
   .data-table {
-    @apply w-full min-w-[640px] border-collapse text-sm;
+    @apply hidden w-full min-w-[760px] border-collapse text-sm md:table;
   }
   .data-table thead {
-    @apply bg-paper-100/80;
+    @apply border-b border-ink-900/10 bg-white;
   }
   .data-table th {
-    @apply whitespace-nowrap px-4 py-3 text-left font-mono text-[11px] font-semibold uppercase tracking-wide text-ink-600/70;
+    @apply whitespace-nowrap px-4 py-3.5 text-left text-[11px] font-bold uppercase tracking-[0.08em] text-ink-600;
   }
   .data-table td {
-    @apply px-4 py-3 align-middle text-ink-800;
+    @apply px-4 py-3.5 align-middle text-ink-800;
   }
   .data-table tbody tr {
-    @apply border-t border-dashed border-ink-900/10 transition-colors duration-150;
+    @apply border-t border-ink-900/5 transition-colors duration-100;
   }
   .data-table tbody tr:hover {
     @apply bg-paper-50;
   }
   .table-actions {
-    @apply flex items-center justify-end gap-1;
+    @apply flex flex-nowrap items-center justify-end gap-1 whitespace-nowrap;
   }
   .icon-btn {
     @apply inline-flex items-center justify-center rounded-lg p-1.5 text-ink-600 transition-colors duration-150 hover:bg-paper-100 hover:text-pen disabled:cursor-not-allowed disabled:opacity-40;
@@ -79,41 +215,51 @@
   .icon-btn-danger:hover {
     @apply bg-pen-tint text-pen;
   }
+
+  .mobile-card-list {
+    @apply space-y-3 p-3 md:hidden;
+  }
+  .mobile-card {
+    @apply rounded-xl border border-ink-900/10 bg-paper-50 p-4;
+  }
+  .mobile-card-title {
+    @apply text-sm font-semibold text-ink-900;
+  }
+  .mobile-card-meta {
+    @apply mt-1.5 flex flex-wrap items-center gap-2 text-xs text-ink-600;
+  }
+  .mobile-card-actions {
+    @apply mt-3 flex flex-wrap gap-2 border-t border-ink-900/10 pt-3;
+  }
 }
 
-/* ============================================================
-   Toasts modernes — carte avec titre coloré + barre de progression
-   ============================================================ */
+/* Toasts */
 .toast-card {
   position: relative;
   overflow: hidden;
   width: 100%;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #ffffff;
-  border: 1px solid rgba(22, 29, 41, 0.08);
-  box-shadow: 0 12px 32px -10px rgba(22, 29, 41, 0.22);
+  border: 1px solid rgba(18, 24, 38, 0.08);
+  box-shadow: 0 16px 36px -14px rgba(18, 24, 38, 0.25);
   padding: 12px 14px 10px;
 }
-
 .toast-card-header {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .toast-card-icon {
   flex-shrink: 0;
 }
-
 .toast-card-title {
   flex: 1;
   margin: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
-
 .toast-card-close {
   flex-shrink: 0;
   display: inline-flex;
@@ -121,32 +267,29 @@
   justify-content: center;
   padding: 2px;
   border-radius: 6px;
-  color: #7C8AA0;
+  color: #8494a8;
   opacity: 0.8;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 .toast-card-close:hover {
   opacity: 1;
-  background-color: rgba(22, 29, 41, 0.06);
+  background-color: rgba(18, 24, 38, 0.06);
 }
-
 .toast-card-message {
   margin: 4px 0 0;
   padding-left: 24px;
   font-size: 13px;
   line-height: 1.45;
-  color: #2A3444;
+  color: #2b3648;
 }
-
 .toast-progress-track {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   height: 3px;
-  background: rgba(22, 29, 41, 0.07);
+  background: rgba(18, 24, 38, 0.07);
 }
-
 .toast-progress-bar {
   height: 100%;
   width: 100%;
@@ -155,7 +298,6 @@
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
-
 @keyframes toastShrink {
   from {
     transform: scaleX(1);
@@ -164,36 +306,31 @@
     transform: scaleX(0);
   }
 }
-
-/* Couleurs par type d'action */
 .toast-success .toast-card-icon,
 .toast-success .toast-card-title {
-  color: #2F6B53;
+  color: #3f6f5f;
 }
 .toast-success .toast-progress-bar {
-  background: #4C7A6C;
+  background: #3f6f5f;
 }
-
 .toast-error .toast-card-icon,
 .toast-error .toast-card-title {
-  color: #9E2F29;
+  color: #9b2e23;
 }
 .toast-error .toast-progress-bar {
-  background: #C23B34;
+  background: #c0392b;
 }
-
 .toast-info .toast-card-icon,
 .toast-info .toast-card-title {
-  color: #4644B8;
+  color: #3e48b0;
 }
 .toast-info .toast-progress-bar {
-  background: #5B5BD6;
+  background: #4f5bd5;
 }
-
 .toast-warning .toast-card-icon,
 .toast-warning .toast-card-title {
-  color: #92650C;
+  color: #7a4e0f;
 }
 .toast-warning .toast-progress-bar {
-  background: #D97706;
+  background: #d97706;
 }

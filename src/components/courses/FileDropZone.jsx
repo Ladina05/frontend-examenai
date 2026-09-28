@@ -48,10 +48,10 @@ export default function FileDropZone({ file, onFileSelected }) {
             setIsDragging(false)
             handleFiles(e.dataTransfer.files)
           }}
-          className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors duration-150 ${
+          className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-11 text-center transition-all duration-150 ${
             isDragging
-              ? 'border-pen bg-pen-tint'
-              : 'border-ink-900/20 bg-paper-100/60 hover:border-ink-900/35'
+              ? 'border-pen bg-pen-tint shadow-soft'
+              : 'border-ink-900/15 bg-paper-50 hover:border-ink-900/30 hover:bg-white'
           }`}
         >
           <UploadCloud

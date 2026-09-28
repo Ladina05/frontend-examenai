@@ -191,7 +191,7 @@ export default function QuestionFormDialog({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-ink-800">Énoncé</label>
+          <label className="field-label mb-1.5">Énoncé</label>
           <textarea
             value={form.statement}
             onChange={function (e) {
@@ -201,19 +201,19 @@ export default function QuestionFormDialog({
             }}
             rows={3}
             placeholder="ex. Quelle est la différence entre un besoin et un objectif utilisateur ?"
-            className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
+            className="field-input"
           />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-ink-800">Type</label>
+            <label className="field-label mb-1.5">Type</label>
             <select
               value={form.questionType}
               onChange={function (e) {
                 handleTypeChange(e.target.value)
               }}
-              className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 focus:border-pen focus:outline-none"
+              className="field-input"
             >
               {QUESTION_TYPES.map(function (t) {
                 return (
@@ -225,7 +225,7 @@ export default function QuestionFormDialog({
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-ink-800">Difficulté</label>
+            <label className="field-label mb-1.5">Difficulté</label>
             <select
               value={form.difficulty}
               onChange={function (e) {
@@ -233,7 +233,7 @@ export default function QuestionFormDialog({
                   return { ...prev, difficulty: e.target.value }
                 })
               }}
-              className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 focus:border-pen focus:outline-none"
+              className="field-input"
             >
               {DIFFICULTIES.map(function (d) {
                 return (
@@ -245,7 +245,7 @@ export default function QuestionFormDialog({
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-ink-800">Points</label>
+            <label className="field-label mb-1.5">Points</label>
             <input
               type="number"
               min={1}
@@ -255,7 +255,7 @@ export default function QuestionFormDialog({
                   return { ...prev, points: e.target.value }
                 })
               }}
-              className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 focus:border-pen focus:outline-none"
+              className="field-input"
             />
           </div>
         </div>
@@ -280,18 +280,21 @@ export default function QuestionFormDialog({
             <div className="space-y-2">
               {form.options.map(function (option, index) {
                 return (
-                  <div key={index} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="correctAnswer"
-                      checked={option !== '' && option === form.correctAnswer}
-                      onChange={function () {
+                  <div key={index} className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      aria-label={`Marquer « ${option || 'option ' + (index + 1)} » comme bonne réponse`}
+                      onClick={function () {
                         setForm(function (prev) {
                           return { ...prev, correctAnswer: option }
                         })
                       }}
-                      className="h-4 w-4 shrink-0 accent-pen"
-                    />
+                      className={`radio-box ${option !== '' && option === form.correctAnswer ? 'radio-box-on' : ''}`}
+                    >
+                      {option !== '' && option === form.correctAnswer ? (
+                        <span className="radio-box-dot" />
+                      ) : null}
+                    </button>
                     <input
                       type="text"
                       value={option}
@@ -300,9 +303,7 @@ export default function QuestionFormDialog({
                         updateOption(index, e.target.value)
                       }}
                       placeholder={`Option ${index + 1}`}
-                      className={`w-full rounded-xl border border-ink-900/15 px-3.5 py-2 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none ${
-                        optionsAreFixed ? 'bg-paper-100' : 'bg-white'
-                      }`}
+                      className={`field-input py-2 ${optionsAreFixed ? 'bg-paper-100' : ''}`}
                     />
                     {!optionsAreFixed && form.options.length > 2 && (
                       <button
@@ -323,7 +324,7 @@ export default function QuestionFormDialog({
           </div>
         ) : (
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-ink-800">Réponse modèle</label>
+            <label className="field-label mb-1.5">Réponse modèle</label>
             <textarea
               value={form.correctAnswer}
               onChange={function (e) {
@@ -333,13 +334,13 @@ export default function QuestionFormDialog({
               }}
               rows={2}
               placeholder="La réponse attendue, utilisée comme référence pour la correction"
-              className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
+              className="field-input"
             />
           </div>
         )}
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-ink-800">
+          <label className="field-label mb-1.5">
             Explication <span className="text-ink-600/50">(facultatif)</span>
           </label>
           <textarea
@@ -351,7 +352,7 @@ export default function QuestionFormDialog({
             }}
             rows={2}
             placeholder="Pourquoi cette réponse est correcte"
-            className="w-full rounded-xl border border-ink-900/15 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-600/40 focus:border-pen focus:outline-none"
+            className="field-input"
           />
         </div>
 

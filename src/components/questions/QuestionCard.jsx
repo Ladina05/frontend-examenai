@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Check } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 
 var TYPE_LABELS = {
   QCM: 'QCM',
@@ -65,12 +65,12 @@ export default function QuestionCard({ question, index, onEdit, onDelete }) {
             return (
               <li
                 key={i}
-                className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm ${
-                  isCorrect ? 'bg-sage-tint text-sage' : 'text-ink-700'
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm ${
+                  isCorrect ? 'bg-sage-tint text-sage' : 'bg-paper-50 text-ink-700'
                 }`}
               >
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-                  {isCorrect && <Check size={13} strokeWidth={3} />}
+                <span className={`radio-box ${isCorrect ? 'radio-box-on border-sage' : ''}`}>
+                  {isCorrect ? <span className="radio-box-dot bg-sage" /> : null}
                 </span>
                 {option}
               </li>

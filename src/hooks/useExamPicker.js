@@ -7,29 +7,30 @@ import { fetchExamsByChapter, fetchExamsByCourse, fetchExamById } from '../api/e
 export var ALL_CHAPTERS_VALUE = 'ALL'
 
 export default function useExamPicker() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const urlExamId = searchParams.get('examId') || ''
+  var [searchParams, setSearchParams] = useSearchParams()
+  var urlExamId = searchParams.get('examId') || ''
 
-  const [courses, setCourses] = useState([])
-  const [chapters, setChapters] = useState([])
-  const [exams, setExams] = useState([])
-  const [courseId, setCourseId] = useState('')
-  const [chapterId, setChapterId] = useState('')
-  const [examId, setExamId] = useState(urlExamId)
-  const [exam, setExam] = useState(null)
+  var [courses, setCourses] = useState([])
+  var [chapters, setChapters] = useState([])
+  var [exams, setExams] = useState([])
+  var [courseExams, setCourseExams] = useState([])
+  var [courseId, setCourseId] = useState('')
+  var [chapterId, setChapterId] = useState('')
+  var [examId, setExamId] = useState(urlExamId)
+  var [exam, setExam] = useState(null)
 
-  const [isLoadingMeta, setIsLoadingMeta] = useState(true)
-  const [isLoadingExam, setIsLoadingExam] = useState(false)
-  const [error, setError] = useState(null)
+  var [isLoadingMeta, setIsLoadingMeta] = useState(true)
+  var [isLoadingExam, setIsLoadingExam] = useState(false)
+  var [error, setError] = useState(null)
 
-  useEffect(() => {
-    let cancelled = false
+  useEffect(function () {
+    var cancelled = false
 
     async function loadCourses() {
       setIsLoadingMeta(true)
       setError(null)
       try {
-        const data = await fetchCourses()
+        var data = await fetchCourses()
         if (!cancelled) setCourses(data)
       } catch (err) {
         if (!cancelled) setError(err.message)
@@ -39,110 +40,137 @@ export default function useExamPicker() {
     }
 
     loadCourses()
-    return () => {
+    return function () {
       cancelled = true
     }
   }, [])
 
-  useEffect(() => {
-    if (!courseId) {
-      setChapters([])
-      return
-    }
-
-    let cancelled = false
-
-    async function loadChapters() {
-      try {
-        const data = await fetchChaptersByCourse(courseId)
-        if (cancelled) return
-        setChapters(data)
-      } catch (err) {
-        if (!cancelled) setError(err.message)
+  useEffect(
+    function () {
+      if (!courseId) {
+        setChapters([])
+        setCourseExams([])
+        return undefined
       }
-    }
 
-    loadChapters()
-    return () => {
-      cancelled = true
-    }
-  }, [courseId])
+      var cancelled = false
 
-  useEffect(() => {
-    if (!chapterId) {
-      setExams([])
-      return
-    }
-
-    let cancelled = false
-
-    async function loadExams() {
-      try {
-        const data = chapterId === ALL_CHAPTERS_VALUE
-          ? await fetchExamsByCourse(courseId)
-          : await fetchExamsByChapter(chapterId)
-        if (cancelled) return
-        setExams(data)
-      } catch (err) {
-        if (!cancelled) setError(err.message)
-      }
-    }
-
-    loadExams()
-    return () => {
-      cancelled = true
-    }
-  }, [chapterId, courseId])
-
-  useEffect(() => {
-    if (!examId) {
-      setExam(null)
-      return
-    }
-
-    let cancelled = false
-
-    async function loadExam() {
-      setIsLoadingExam(true)
-      setExam(null)
-      setError(null)
-      try {
-        const data = await fetchExamById(examId)
-        if (cancelled) return
-        setExam(data)
-        if (data.courseId) setCourseId(String(data.courseId))
-        if (data.chapterId) {
-          setChapterId(String(data.chapterId))
-        } else if (data.courseId) {
-          setChapterId(ALL_CHAPTERS_VALUE)
+      async function loadCourseMeta() {
+        try {
+          var results = await Promise.all([
+            fetchChaptersByCourse(courseId),
+            fetchExamsByCourse(courseId),
+          ])
+          if (cancelled) return
+          setChapters(results[0])
+          setCourseExams(Array.isArray(results[1]) ? results[1] : [])
+        } catch (err) {
+          if (!cancelled) setError(err.message)
         }
-      } catch (err) {
-        if (!cancelled) {
-          setExam(null)
-          setError(err.message)
-        }
-      } finally {
-        if (!cancelled) setIsLoadingExam(false)
       }
-    }
 
-    loadExam()
-    return () => {
-      cancelled = true
-    }
-  }, [examId])
+      loadCourseMeta()
+      return function () {
+        cancelled = true
+      }
+    },
+    [courseId],
+  )
 
-  useEffect(() => {
-    if (urlExamId && urlExamId !== examId) {
-      setExamId(urlExamId)
+  useEffect(
+    function () {
+      if (!chapterId) {
+        setExams([])
+        return undefined
+      }
+
+      var cancelled = false
+
+      async function loadExams() {
+        try {
+          var data =
+            chapterId === ALL_CHAPTERS_VALUE
+              ? await fetchExamsByCourse(courseId)
+              : await fetchExamsByChapter(chapterId)
+          if (cancelled) return
+          setExams(data)
+        } catch (err) {
+          if (!cancelled) setError(err.message)
+        }
+      }
+
+      loadExams()
+      return function () {
+        cancelled = true
+      }
+    },
+    [chapterId, courseId],
+  )
+
+  useEffect(
+    function () {
+      if (!examId) {
+        setExam(null)
+        return undefined
+      }
+
+      var cancelled = false
+
+      async function loadExam() {
+        setIsLoadingExam(true)
+        setExam(null)
+        setError(null)
+        try {
+          var data = await fetchExamById(examId)
+          if (cancelled) return
+          setExam(data)
+          if (data.courseId) setCourseId(String(data.courseId))
+          if (data.chapterId) {
+            setChapterId(String(data.chapterId))
+          } else if (data.courseId) {
+            setChapterId(ALL_CHAPTERS_VALUE)
+          }
+        } catch (err) {
+          if (!cancelled) {
+            setExam(null)
+            setError(err.message)
+          }
+        } finally {
+          if (!cancelled) setIsLoadingExam(false)
+        }
+      }
+
+      loadExam()
+      return function () {
+        cancelled = true
+      }
+    },
+    [examId],
+  )
+
+  useEffect(
+    function () {
+      if (urlExamId && urlExamId !== examId) {
+        setExamId(urlExamId)
+      }
+    },
+    [urlExamId],
+  )
+
+  var chapterIdsWithExams = {}
+  courseExams.forEach(function (item) {
+    if (item.chapterId != null) {
+      chapterIdsWithExams[String(item.chapterId)] = true
     }
-  }, [urlExamId])
+  })
+  var hasAnyCourseExam = courseExams.length > 0
 
   function selectCourse(nextCourseId) {
     setCourseId(nextCourseId)
     setChapterId('')
     setExamId('')
     setExam(null)
+    setCourseExams([])
     setSearchParams({})
   }
 
@@ -166,6 +194,8 @@ export default function useExamPicker() {
     chapterId,
     examId,
     exam,
+    chapterIdsWithExams,
+    hasAnyCourseExam,
     isLoadingMeta,
     isLoadingExam,
     error,

@@ -4,6 +4,13 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './index.css'
 
+document.documentElement.classList.remove('dark')
+try {
+  localStorage.removeItem('examgenai:theme')
+} catch {
+  // ignore
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
