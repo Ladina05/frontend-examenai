@@ -39,18 +39,36 @@ npm run dev
 
 L'application démarre sur http://localhost:5173.
 
-L'URL de l'API est définie dans `src/api/client.js` (`http://localhost:8080/api`).
+L'URL de l'API se configure via `VITE_API_URL` (voir `.env.example`).
+Par défaut en local : `http://localhost:8080/api`.
+
+## Déploiement Vercel
+
+1. Pousser la branche `chore/vercel-deploy` (ou merger sur `main`).
+2. Sur [vercel.com](https://vercel.com) : importer le repo `frontend-examenai`.
+3. Réglages :
+   - Framework : **Vite**
+   - Build Command : `npm run build`
+   - Output Directory : `dist`
+4. Environment Variable :
+   - `VITE_API_URL` = `https://backend-examgenai.onrender.com/api`
+5. Deploy.
+6. Sur Render (backend), mettre à jour CORS :
+   - `APP_CORS_ALLOWED_ORIGINS` = `https://VOTRE-APP.vercel.app,http://localhost:5173`
+   puis redeployer / redémarrer le service.
+
+Fichier utile : `vercel.json` (routes SPA React Router).
 
 ## État actuel
 
 | Page | Route | Statut |
 |------|-------|--------|
 | Accueil | `/` | Fait |
-| Liste + upload cours | `/courses` | Fait (Ladina) |
-| Détail cours / chapitres | `/courses/:id` | Fait (Ladina) + bouton génération |
-| Génération IA | `/generation` | Fait (Herihasina) |
-| Édition questions | `/questions` | Placeholder (Tsiory) |
-| Export | `/export` | Placeholder (Tsiory) |
+| Liste + upload cours | `/courses` | Fait |
+| Détail cours / chapitres | `/courses/:id` | Fait |
+| Génération IA | `/generation` | Fait |
+| Édition questions | `/questions` | Fait |
+| Export | `/export` | Fait |
 
 ## Git
 
