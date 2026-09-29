@@ -77,6 +77,8 @@ export default function ExportPage() {
           onChapterChange={picker.selectChapter}
           chapterIdsWithExams={picker.chapterIdsWithExams}
           hasAnyCourseExam={picker.hasAnyCourseExam}
+          isLoadingCourses={picker.isLoadingMeta}
+          isLoadingChapters={picker.isLoadingChapters}
         />
         <ExamSelectCard
           exams={picker.exams}
@@ -84,6 +86,7 @@ export default function ExportPage() {
           examId={picker.examId}
           exam={picker.exam}
           onExamChange={picker.selectExam}
+          isLoadingExams={picker.isLoadingExams}
         />
       </div>
 

@@ -20,6 +20,8 @@ export default function useExamPicker() {
   var [exam, setExam] = useState(null)
 
   var [isLoadingMeta, setIsLoadingMeta] = useState(true)
+  var [isLoadingChapters, setIsLoadingChapters] = useState(false)
+  var [isLoadingExams, setIsLoadingExams] = useState(false)
   var [isLoadingExam, setIsLoadingExam] = useState(false)
   var [error, setError] = useState(null)
 
@@ -50,12 +52,16 @@ export default function useExamPicker() {
       if (!courseId) {
         setChapters([])
         setCourseExams([])
+        setIsLoadingChapters(false)
         return undefined
       }
 
       var cancelled = false
 
       async function loadCourseMeta() {
+        setIsLoadingChapters(true)
+        setChapters([])
+        setCourseExams([])
         try {
           var results = await Promise.all([
             fetchChaptersByCourse(courseId),
@@ -66,6 +72,8 @@ export default function useExamPicker() {
           setCourseExams(Array.isArray(results[1]) ? results[1] : [])
         } catch (err) {
           if (!cancelled) setError(err.message)
+        } finally {
+          if (!cancelled) setIsLoadingChapters(false)
         }
       }
 
@@ -81,12 +89,15 @@ export default function useExamPicker() {
     function () {
       if (!chapterId) {
         setExams([])
+        setIsLoadingExams(false)
         return undefined
       }
 
       var cancelled = false
 
       async function loadExams() {
+        setIsLoadingExams(true)
+        setExams([])
         try {
           var data =
             chapterId === ALL_CHAPTERS_VALUE
@@ -96,6 +107,8 @@ export default function useExamPicker() {
           setExams(data)
         } catch (err) {
           if (!cancelled) setError(err.message)
+        } finally {
+          if (!cancelled) setIsLoadingExams(false)
         }
       }
 
@@ -197,6 +210,8 @@ export default function useExamPicker() {
     chapterIdsWithExams,
     hasAnyCourseExam,
     isLoadingMeta,
+    isLoadingChapters,
+    isLoadingExams,
     isLoadingExam,
     error,
     setError,

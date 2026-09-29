@@ -49,6 +49,8 @@ export default function useExamGeneration() {
   var [questionTypes, setQuestionTypes] = useState(['QCM', 'TRUE_FALSE', 'OPEN'])
 
   var [isLoadingMeta, setIsLoadingMeta] = useState(true)
+  var [isLoadingChapters, setIsLoadingChapters] = useState(false)
+  var [isLoadingChapter, setIsLoadingChapter] = useState(false)
   var [isGenerating, setIsGenerating] = useState(false)
   var [generationStep, setGenerationStep] = useState(0)
   var [error, setError] = useState(null)
@@ -81,9 +83,12 @@ export default function useExamGeneration() {
     function () {
       if (!courseId) {
         setChapters([])
+        setIsLoadingChapters(false)
         return undefined
       }
       var cancelled = false
+      setIsLoadingChapters(true)
+      setChapters([])
       fetchChaptersByCourse(courseId)
         .then(function (data) {
           if (cancelled) return
@@ -94,6 +99,9 @@ export default function useExamGeneration() {
         })
         .catch(function (err) {
           if (!cancelled) setError(err.message)
+        })
+        .finally(function () {
+          if (!cancelled) setIsLoadingChapters(false)
         })
       return function () {
         cancelled = true
@@ -106,9 +114,11 @@ export default function useExamGeneration() {
     function () {
       if (!chapterId || chapterId === ALL_CHAPTERS_VALUE) {
         setChapter(null)
+        setIsLoadingChapter(false)
         return undefined
       }
       var cancelled = false
+      setIsLoadingChapter(true)
       fetchChapterById(chapterId)
         .then(function (data) {
           if (cancelled) return
@@ -120,6 +130,9 @@ export default function useExamGeneration() {
         })
         .catch(function (err) {
           if (!cancelled) setError(err.message)
+        })
+        .finally(function () {
+          if (!cancelled) setIsLoadingChapter(false)
         })
       return function () {
         cancelled = true
@@ -321,6 +334,8 @@ export default function useExamGeneration() {
     selectCourse,
     selectChapter,
     isLoadingMeta,
+    isLoadingChapters,
+    isLoadingChapter,
     isGenerating,
     generationStep,
     error,

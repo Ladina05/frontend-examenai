@@ -9,6 +9,7 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { fetchCourses } from '../api/courses'
+import Spinner from '../components/ui/Spinner'
 
 var pipeline = [
   {
@@ -50,6 +51,8 @@ var pipeline = [
 
 export default function HomePage() {
   var [courseCount, setCourseCount] = useState(null)
+  var isReady = courseCount !== null
+  var hasCourses = isReady && courseCount > 0
 
   useEffect(function () {
     var isCancelled = false
@@ -57,13 +60,13 @@ export default function HomePage() {
       .then(function (data) {
         if (!isCancelled) setCourseCount(data.length)
       })
-      .catch(function () {})
+      .catch(function () {
+        if (!isCancelled) setCourseCount(0)
+      })
     return function () {
       isCancelled = true
     }
   }, [])
-
-  var hasCourses = courseCount !== null && courseCount > 0
 
   return (
     <div className="w-full space-y-8 sm:space-y-10">
@@ -78,16 +81,23 @@ export default function HomePage() {
           brouillon.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link to={hasCourses ? '/generation' : '/courses'} className="btn-primary">
-            <Bot size={16} />
-            {hasCourses ? 'Générer un examen' : 'Commencer'}
-          </Link>
+          {!isReady ? (
+            <button type="button" className="btn-primary" disabled>
+              <Spinner size={16} />
+              Chargement…
+            </button>
+          ) : (
+            <Link to={hasCourses ? '/generation' : '/courses'} className="btn-primary">
+              <Bot size={16} />
+              {hasCourses ? 'Générer un examen' : 'Commencer'}
+            </Link>
+          )}
           <Link to="/courses" className="btn-secondary">
             Mes cours
             <ArrowRight size={15} />
           </Link>
         </div>
-        {courseCount !== null && (
+        {isReady && (
           <p className="mt-6 text-xs text-ink-600/70">
             {courseCount === 0
               ? 'Aucun cours encore — commencez par un dépôt.'
