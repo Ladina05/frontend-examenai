@@ -12,7 +12,7 @@ function resolveErrorMessage(error) {
     if (error.code === 'ECONNABORTED') {
       return 'La requête a pris trop de temps. Réessayez dans quelques instants.'
     }
-    return "Impossible de joindre le serveur. Vérifiez votre connexion ou réessayez."
+    return "Impossible de joindre le serveur. Vérifiez votre connexion ou réessayez dans quelques instants."
   }
 
   var data = error.response.data

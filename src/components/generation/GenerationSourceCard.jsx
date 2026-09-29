@@ -1,4 +1,5 @@
 import { ALL_CHAPTERS_VALUE } from '../../hooks/useExamGeneration'
+import Spinner from '../ui/Spinner'
 
 export default function GenerationSourceCard({
   courses,
@@ -8,6 +9,8 @@ export default function GenerationSourceCard({
   chapter,
   onCourseChange,
   onChapterChange,
+  isLoadingChapters,
+  isLoadingChapter,
 }) {
   var isAllChapters = chapterId === ALL_CHAPTERS_VALUE
   var selectedCourse = courses.find(function (c) {
@@ -44,24 +47,36 @@ export default function GenerationSourceCard({
       </label>
 
       <label className="block space-y-1.5">
-        <span className="field-label">Chapitre</span>
+        <span className="field-label inline-flex items-center gap-1.5">
+          Chapitre
+          {isLoadingChapters ? <Spinner size={12} className="text-pen" /> : null}
+        </span>
         <select
           value={chapterId}
           onChange={function (e) {
             onChapterChange(e.target.value)
           }}
-          disabled={!courseId}
+          disabled={!courseId || isLoadingChapters}
           className="field-input"
         >
-          <option value="">Sélectionner un chapitre</option>
-          {courseId && <option value={ALL_CHAPTERS_VALUE}>Toutes les chapitres</option>}
-          {chapters.map(function (ch) {
-            return (
-              <option key={ch.id} value={ch.id}>
-                {String(ch.chapterNumber).padStart(2, '0')} — {ch.title}
-              </option>
-            )
-          })}
+          <option value="">
+            {!courseId
+              ? 'Sélectionner un chapitre'
+              : isLoadingChapters
+                ? 'Chargement des chapitres…'
+                : 'Sélectionner un chapitre'}
+          </option>
+          {courseId && !isLoadingChapters && (
+            <option value={ALL_CHAPTERS_VALUE}>Toutes les chapitres</option>
+          )}
+          {!isLoadingChapters &&
+            chapters.map(function (ch) {
+              return (
+                <option key={ch.id} value={ch.id}>
+                  {String(ch.chapterNumber).padStart(2, '0')} — {ch.title}
+                </option>
+              )
+            })}
         </select>
         {!courseId && (
           <p className="text-xs text-ink-600/60">Choisissez d’abord un cours pour voir ses chapitres.</p>
@@ -81,7 +96,14 @@ export default function GenerationSourceCard({
         </div>
       )}
 
-      {!isAllChapters && chapter && (
+      {!isAllChapters && isLoadingChapter && (
+        <div className="flex items-center gap-2 rounded-xl border border-ink-900/10 bg-paper-50 p-4 text-sm text-ink-600">
+          <Spinner size={16} className="text-pen" />
+          Chargement du chapitre…
+        </div>
+      )}
+
+      {!isAllChapters && !isLoadingChapter && chapter && (
         <div className="rounded-xl border border-pen/15 bg-pen-tint/40 p-4">
           <p className="text-xs font-semibold text-pen-dark">Source sélectionnée</p>
           <p className="mt-1 text-sm font-semibold text-ink-900">{chapter.title}</p>

@@ -4,7 +4,7 @@ export default function AppFooter() {
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-1.5 text-center sm:flex-row sm:text-left">
         <p className="text-xs text-ink-600/65">ExamGenAI</p>
         <p className="text-xs font-semibold text-ink-700">
-          © 2026 Herihasina, Ladina, Mahery, Tsiory
+          © 2026 Izy M'Lay Team Dev
         </p>
       </div>
     </footer>

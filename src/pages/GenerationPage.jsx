@@ -384,6 +384,8 @@ export default function GenerationPage() {
               chapter={generation.chapter}
               onCourseChange={generation.selectCourse}
               onChapterChange={generation.selectChapter}
+              isLoadingChapters={generation.isLoadingChapters}
+              isLoadingChapter={generation.isLoadingChapter}
             />
           )}
 
