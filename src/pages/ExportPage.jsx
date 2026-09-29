@@ -22,18 +22,14 @@ export default function ExportPage() {
   var [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
   var [isDownloadingDocx, setIsDownloadingDocx] = useState(false)
   var [downloadError, setDownloadError] = useState(null)
-  var [downloadSuccess, setDownloadSuccess] = useState(null)
 
   async function handleDownloadPdf() {
     setDownloadError(null)
-    setDownloadSuccess(null)
     setIsDownloadingPdf(true)
     try {
       var result = await downloadExamPdf(picker.examId)
       triggerFileDownload(result.blob, result.filename)
-      var message = MESSAGES.export.pdfSuccess(result.filename)
-      toast.success(message)
-      setDownloadSuccess({ message: message })
+      toast.success(MESSAGES.export.pdfSuccess(result.filename))
     } catch (err) {
       setDownloadError(err.message)
       toast.error(err.message || MESSAGES.export.error)
@@ -44,14 +40,11 @@ export default function ExportPage() {
 
   async function handleDownloadDocx() {
     setDownloadError(null)
-    setDownloadSuccess(null)
     setIsDownloadingDocx(true)
     try {
       var result = await downloadExamDocx(picker.examId)
       triggerFileDownload(result.blob, result.filename)
-      var message = MESSAGES.export.docxSuccess(result.filename)
-      toast.success(message)
-      setDownloadSuccess({ message: message })
+      toast.success(MESSAGES.export.docxSuccess(result.filename))
     } catch (err) {
       setDownloadError(err.message)
       toast.error(err.message || MESSAGES.export.error)
@@ -124,6 +117,16 @@ export default function ExportPage() {
                 {DIFFICULTY_LABELS[picker.exam.difficultyLevel] || picker.exam.difficultyLevel}
               </span>
             </div>
+            <p className="mt-3 text-sm text-ink-600">
+              Besoin d’ajuster le contenu ?{' '}
+              <Link
+                to={`/questions?examId=${picker.examId}`}
+                className="inline-flex items-center gap-1 font-semibold text-pen hover:underline"
+              >
+                <Pencil size={14} />
+                Éditer les questions
+              </Link>
+            </p>
           </section>
 
           {downloadError && (
@@ -134,28 +137,6 @@ export default function ExportPage() {
                 setDownloadError(null)
               }}
             />
-          )}
-
-          {downloadSuccess && (
-            <div className="space-y-2">
-              <StatusBanner
-                type="success"
-                message={downloadSuccess.message}
-                onDismiss={function () {
-                  setDownloadSuccess(null)
-                }}
-              />
-              <p className="text-sm text-ink-600">
-                Besoin d’ajuster le contenu ?{' '}
-                <Link
-                  to={`/questions?examId=${picker.examId}`}
-                  className="inline-flex items-center gap-1 font-semibold text-pen hover:underline"
-                >
-                  <Pencil size={14} />
-                  Éditer les questions
-                </Link>
-              </p>
-            </div>
           )}
 
           <section className="grid gap-4 sm:grid-cols-2">
@@ -171,7 +152,7 @@ export default function ExportPage() {
               <div>
                 <h3 className="font-display text-base font-semibold text-ink-900">Télécharger en PDF</h3>
                 <p className="mt-1 text-sm leading-relaxed text-ink-600">
-                  Format prêt à imprimer, questions et corrigé inclus.
+                  Format prêt à imprimer - sujet seul, sans corrigé.
                 </p>
               </div>
             </button>
@@ -188,7 +169,7 @@ export default function ExportPage() {
               <div>
                 <h3 className="font-display text-base font-semibold text-ink-900">Télécharger en Word</h3>
                 <p className="mt-1 text-sm leading-relaxed text-ink-600">
-                  Format modifiable, pratique pour ajuster la mise en page.
+                  Format modifiable - pratique pour ajuster la mise en page, avec corrigé en bas du document.
                 </p>
               </div>
             </button>
